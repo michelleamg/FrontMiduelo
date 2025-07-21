@@ -92,7 +92,7 @@
                     <div class="mb-3">
                     <label class="form-label">Confirmar Contraseña</label>
                     <input type="password" class="form-control" formControlName="confirmarContrasena">
-                    <div class="text-danger" *ngIf="form.errors?.passwordMismatch && form.get('confirmarContrasena')?.touched">
+                    <div class="text-danger" *ngIf="form.errors?.['passwordMismatch'] && form.get('confirmarContrasena')?.touched">
                         Las contraseñas no coinciden
                     </div>
                     </div>
