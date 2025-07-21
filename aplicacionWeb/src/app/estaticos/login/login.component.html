@@ -12,7 +12,7 @@
             <div class="mb-3 w-100 px-4">
               <label for="correo" class="form-label">Correo</label>
               <input id="correo" formControlName="correo" type="text" class="form-control" placeholder="Ingrese correo">
-              <span class="text-danger" *ngIf="form.get('correo')?.hasError('required') && form.get('correo')?.touched">
+              <span class="text-danger" >
                 El campo es requerido
               </span>
             </div>
@@ -21,7 +21,7 @@
             <div class="mb-3 w-100 px-4">
               <label for="contrasena" class="form-label">Contraseña</label>
               <input id="contrasena" formControlName="Contrasena" type="password" class="form-control" placeholder="Ingrese contraseña">
-              <span class="text-danger" *ngIf="form.get('Contrasena')?.hasError('required') && form.get('Contrasena')?.touched">
+              <span class="text-danger" >
                 El campo es requerido
               </span>
             </div>

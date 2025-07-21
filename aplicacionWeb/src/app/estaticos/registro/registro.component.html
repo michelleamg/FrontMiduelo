@@ -1,0 +1,112 @@
+<div class="seccion-fondo">
+    <div class="container mt-1">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body">
+                <h3 class="text-center mb-4">Registro de Profesional</h3>
+                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                    <label class="form-label">Nombre(s)</label>
+                    <input type="text" class="form-control" formControlName="nombre">
+                    <div class="text-danger" *ngIf="form.get('nombre')?.touched && form.get('nombre')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Apellido paterno -->
+                    <div class="mb-3">
+                    <label class="form-label">Apellido paterno</label>
+                    <input type="text" class="form-control" formControlName="apellidoPaterno">
+                    <div class="text-danger" *ngIf="form.get('apellidoPaterno')?.touched && form.get('apellidoPaterno')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Apellido materno -->
+                    <div class="mb-3">
+                    <label class="form-label">Apellido materno</label>
+                    <input type="text" class="form-control" formControlName="apellidoMaterno">
+                    <div class="text-danger" *ngIf="form.get('apellidoMaterno')?.touched && form.get('apellidoMaterno')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Fecha de nacimiento -->
+                    <div class="mb-3">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input type="date" class="form-control" formControlName="fechaNacimiento">
+                    <div class="text-danger" *ngIf="form.get('fechaNacimiento')?.touched && form.get('fechaNacimiento')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Especialidad -->
+                    <div class="mb-3">
+                    <label class="form-label">Especialidad</label>
+                    <input type="text" class="form-control" formControlName="especialidad">
+                    <div class="text-danger" *ngIf="form.get('especialidad')?.touched && form.get('especialidad')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Cédula profesional -->
+                    <div class="mb-3">
+                    <label class="form-label">Cédula Profesional</label>
+                    <input type="text" class="form-control" formControlName="cedulaProfesional">
+                    <div class="text-danger" *ngIf="form.get('cedulaProfesional')?.touched && form.get('cedulaProfesional')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" formControlName="telefono">
+                    <div class="text-danger" *ngIf="form.get('telefono')?.touched && form.get('telefono')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-control" formControlName="direccion">
+                    <div class="text-danger" *ngIf="form.get('direccion')?.touched && form.get('direccion')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" formControlName="contrasena">
+                    <div class="text-danger" *ngIf="form.get('contrasena')?.touched && form.get('contrasena')?.invalid">
+                        Campo requerido
+                    </div>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="mb-3">
+                    <label class="form-label">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" formControlName="confirmarContrasena">
+                    <div class="text-danger" *ngIf="form.errors?.passwordMismatch && form.get('confirmarContrasena')?.touched">
+                        Las contraseñas no coinciden
+                    </div>
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="text-center">
+                    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Registrarse</button>
+                    </div>
+
+                </form>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+  
+</div>
