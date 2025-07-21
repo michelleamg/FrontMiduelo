@@ -25,6 +25,7 @@ export class RegistroComponent {
         direccion: ['', Validators.required],
         contrasena: ['', Validators.required],
         confirmarContrasena: ['', Validators.required],
+        terminosAceptados: [false, Validators.requiredTrue]
       },
       { validators: this.passwordMatchValidator }
     );
