@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavBarComponent } from "./compartidos/nav-bar/nav-bar.component";
-import { FoodComponent } from "./compartidos/food/food.component";
-import { LoginComponent } from "./estaticos/login/login.component";
-import {  RegistroComponent } from "./estaticos/registro/registro.component";
+import { FooterComponent } from "./compartidos/footer/footer.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavBarComponent, FoodComponent, LoginComponent,RegistroComponent],
+  imports: [RouterOutlet, NavBarComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
