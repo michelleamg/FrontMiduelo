@@ -1,0 +1,43 @@
+import {Request, Response} from 'express';
+import { Paciente } from '../models/paciente';
+
+export const registroPaciente = async ( req: Request, res: Response) => {
+
+    const { nombre, apellidoPaterno, apellidoMaterno } = req.body;
+    
+
+   
+    try {
+        Paciente.create({
+        nombre: nombre,
+        apellidoPaterno: apellidoPaterno,
+        apellidoMaterno: apellidoMaterno,
+        status: 1,
+    }); 
+
+    //respuesta de la creacion de usuario
+    res.json({
+        msg:'User ${naombre} ${apellido} create success...'
+    });
+        
+    } catch (error) {
+        res.status(400).json(
+            {msg: 'El usuario ya existe ${correo} o la credencial ${cedula}'}
+        )
+    }
+}
+
+//creamos el login 
+
+export const login = async(req: Request, res: Response) => {
+    console.log(req.body);
+    res.json({
+        msg: 'Inicio de seccion  Exitoso =>',
+        body: req.body
+    });
+}
+
+export const getPacientes = async (req: Request, res: Response) =>{
+    const listaPacientes = await Paciente.findAll();
+    res.json({listaPacientes});
+}
