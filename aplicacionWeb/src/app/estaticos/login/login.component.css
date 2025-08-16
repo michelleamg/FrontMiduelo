@@ -4,7 +4,7 @@
   border-radius: 10px;
 }
 .seccion-fondo {
-  background-image: url('/imagenes/branding/fondo_login.png'); /* cambia la ruta según tu imagen */
+  background-image: url('/imagenes/branding/fondo_login_amanecer.jpg'); /* cambia la ruta según tu imagen */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
