@@ -11,10 +11,10 @@ export class UserService {
 
   constructor(private http: HttpClient) {
     this.AppUrl = environment.apiUrl;  // Corregí la coma por punto y coma
-    this.APIUrl = "/api/user/registro";
+    this.APIUrl = "api/user/registro/";
   }
 
-  registrarUsuario(usuario: any) {
+registrarUsuario(usuario: any) {
     return this.http.post(`${this.AppUrl}${this.APIUrl}`, usuario);
   }
 }

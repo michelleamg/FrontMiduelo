@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-registro',
@@ -14,7 +15,7 @@ export class RegistroComponent {
 
    form: FormGroup;
 
-  constructor(private _userService: UserService, private router: Router ,private fb: FormBuilder) {
+  constructor(private toast: ToastrService,private _userService: UserService, private router: Router ,private fb: FormBuilder) {
     this.form = this.fb.group(
       {
         nombre: ['', Validators.required],
@@ -42,7 +43,9 @@ export class RegistroComponent {
   onSubmit() {
     if (this.form.valid) {
       console.log(this.form.value);
-      // Aquí puedes enviar los datos al backend
+       this._userService.registrarUsuario(this.form.value).subscribe(data =>{ 
+          this.toast.success('cuenta de ${form.nombre} ${form.apellidoPaterno} creado exitosamente')
+       })
     }
 }
 }
