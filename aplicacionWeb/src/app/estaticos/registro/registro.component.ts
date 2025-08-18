@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { UserService } from '../../services/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registro',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css'
 })
@@ -12,7 +14,7 @@ export class RegistroComponent {
 
    form: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private _userService: UserService, private router: Router ,private fb: FormBuilder) {
     this.form = this.fb.group(
       {
         nombre: ['', Validators.required],
