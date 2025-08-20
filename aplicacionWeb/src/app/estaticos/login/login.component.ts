@@ -30,6 +30,8 @@ export class LoginComponent {
   ){ }
 
   iniciarSeccion(){
+    console.log(this.correo );
+    
     if (this.correo == '' || this.contrasena == ''){
       this.toastr.error("Todos los campos son obligatorios", "Error");
     }
