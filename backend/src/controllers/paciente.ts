@@ -17,7 +17,7 @@ export const registroPaciente = async ( req: Request, res: Response) => {
 
     //respuesta de la creacion de usuario
     res.json({
-        msg:'User ${naombre} ${apellido} create success...'
+        msg:'User ${nombre} ${apellido} create success...'
     });
         
     } catch (error) {

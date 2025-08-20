@@ -4,8 +4,13 @@ import { provideToastr } from 'ngx-toastr';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideAnimations(), // required animations providers
-    provideToastr()]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideRouter(routes), provideAnimations(), // required animations providers
+    provideToastr(),
+    provideHttpClient()
+  ]
 };

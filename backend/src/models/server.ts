@@ -1,10 +1,11 @@
 // File: src/models/server.ts
 import express, { Application } from 'express';
 import sequelize from '../database/connection'; // Asegúrate de que esta ruta sea correcta
-import router from '../routes/user'; // Importa el router directamente
+import router from '../routes/psicologo'; // Importa el router directamente
 import paciente from '../routes/paciente'; // Importa el router directamente
-import { User } from './user';
+import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
+import cors from 'cors';
 
 class Server {
     private app: Application;
@@ -31,6 +32,7 @@ class Server {
     private midlewares() {
         this.app.use(express.json()); // Middleware para parsear JSON en el cuerpo de las solicitudes
         // Puedes añadir otros middlewares aquí, como CORS, etc.
+        this.app.use(cors());
     }
 
     // Método para configurar las rutas
@@ -50,7 +52,7 @@ class Server {
     private async connetionBaseDatos() {
         try {
             // await sequelize.authenticate(); // Descomenta si quieres probar la conexión
-            await User.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
+            await Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
                                               // Para desarrollo, 'force: true' puede ser útil, pero en producción
                                               // o si ya tienes datos, usa 'force: false' o migraciones.
 

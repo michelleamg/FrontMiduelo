@@ -1,74 +1,81 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { UserService } from '../../services/user.service';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-registro',
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  standalone: true, // si estás usando standalone components
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, RouterModule, ],
   templateUrl: './registro.component.html',
-  styleUrl: './registro.component.css'
+  styleUrls: ['./registro.component.css']
 })
-export class RegistroComponent {
-  form: FormGroup;
-  submitting = false; // Para deshabilitar el botón durante el envío
+export class RegistroComponent implements OnInit {
+
+  nombre: string = '';
+  apellidoPaterno: string = '';
+  apellidoMaterno: string = '';
+  fecha_nacimiento: string = '';
+  especialidad: string = '';
+  cedulaProfesional: string = '';
+  numTelefonico: number | null = null;
+  correo: string = '';
+  contrasena: string = '';
+  confirmarContrasena: string = '';
+  //contrasena: any;
 
   constructor(
-    private toast: ToastrService,
-    private _userService: UserService, 
+    private userService: UserService,
     private router: Router,
-    private fb: FormBuilder
-  ) {
-    this.form = this.fb.group({
-      nombre: ['', Validators.required],
-      apellidoPaterno: ['', Validators.required],
-      apellidoMaterno: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required],
-      especialidad: ['', Validators.required],
-      cedulaProfesional: ['', Validators.required],
-      telefono: ['', Validators.required],
-      direccion: ['', Validators.required],
-      contrasena: ['', [Validators.required, Validators.minLength(6)]],
-      confirmarContrasena: ['', Validators.required],
-      terminosAceptados: [false, Validators.requiredTrue]
-    }, { validators: this.passwordMatchValidator });
-  }
+    private toastr: ToastrService
+  ) {}
 
-  passwordMatchValidator(formGroup: AbstractControl): ValidationErrors | null {
-    const pass = formGroup.get('contrasena')?.value;
-    const confirm = formGroup.get('confirmarContrasena')?.value;
-    return pass === confirm ? null : { passwordMismatch: true };
-  }
+  ngOnInit(): void {}
 
-  markAllAsTouched() {
-    Object.values(this.form.controls).forEach(control => {
-      control.markAsTouched();
-    });
-  }
-
-  onSubmit() {
-    if (this.form.invalid) {
-      this.markAllAsTouched();
-      this.toast.warning('Por favor complete todos los campos requeridos');
+  registrarPsicologo() {
+    if (
+      this.nombre === '' ||
+      this.apellidoMaterno === '' ||
+      this.apellidoPaterno === '' ||
+      this.fecha_nacimiento === '' ||
+      this.especialidad === '' ||
+      this.cedulaProfesional === null ||
+      this.numTelefonico === null
+    ) {
+      this.toastr.error('Todos los campos son obligatorios',"Error");
       return;
     }
 
-    this.submitting = true;
-    
-    this._userService.registrarUsuario(this.form.value).subscribe({
-      next: (data) => {
-        this.toast.success(`Cuenta de ${this.form.value.nombre} ${this.form.value.apellidoPaterno} creada exitosamente`);
-        this.router.navigate(['/Iniciar-sesion']);
+    if(this.contrasena != this.confirmarContrasena){
+      this.toastr.warning('Las claves son diferntes','Warning');
+      return;
+    }
+
+    // Aquí llamas al servicio para registrar
+    const psicologo = {
+      nombre: this.nombre,
+      apellidoPaterno: this.apellidoPaterno,
+      apellidoMaterno: this.apellidoMaterno,
+      fecha_nacimiento: this.fecha_nacimiento,
+      especialidad: this.especialidad,
+      cedula: this.cedulaProfesional,
+      telefono: this.numTelefonico,
+      correo: this.correo,
+      contrasena: this.contrasena
+    };
+
+    console.log(psicologo);
+
+    this.userService.registrarUsuario(psicologo).subscribe({
+      next: () => {
+        this.toastr.success('Psicólogo registrado correctamente');
+        this.router.navigate(['/iniciar-sesion']);
       },
       error: (err) => {
-        this.submitting = false;
-        this.toast.error('Error al registrar: ' + (err.error?.message || err.message));
-      },
-      complete: () => {
-        this.submitting = false;
+        console.error(err);
+        this.toastr.error('Error al registrar');
       }
     });
   }

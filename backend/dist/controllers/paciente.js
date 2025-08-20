@@ -22,7 +22,7 @@ const registroPaciente = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
         //respuesta de la creacion de usuario
         res.json({
-            msg: 'User ${naombre} ${apellido} create success...'
+            msg: 'User ${nombre} ${apellido} create success...'
         });
     }
     catch (error) {

@@ -14,10 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // File: src/models/server.ts
 const express_1 = __importDefault(require("express"));
-const user_1 = __importDefault(require("../routes/user")); // Importa el router directamente
+const psicologo_1 = __importDefault(require("../routes/psicologo")); // Importa el router directamente
 const paciente_1 = __importDefault(require("../routes/paciente")); // Importa el router directamente
-const user_2 = require("./user");
+const psicologo_2 = require("./psicologo");
 const paciente_2 = require("./paciente");
+const cors_1 = __importDefault(require("cors"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -35,10 +36,11 @@ class Server {
     midlewares() {
         this.app.use(express_1.default.json()); // Middleware para parsear JSON en el cuerpo de las solicitudes
         // Puedes añadir otros middlewares aquí, como CORS, etc.
+        this.app.use((0, cors_1.default)());
     }
     // Método para configurar las rutas
     routes() {
-        this.app.use(user_1.default); // Usa el router importado
+        this.app.use(psicologo_1.default); // Usa el router importado
         this.app.use(paciente_1.default); // Usa el router importado
     }
     // Método para iniciar el servidor
@@ -52,7 +54,7 @@ class Server {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // await sequelize.authenticate(); // Descomenta si quieres probar la conexión
-                yield user_2.User.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
+                yield psicologo_2.Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
                 // Para desarrollo, 'force: true' puede ser útil, pero en producción
                 // o si ya tienes datos, usa 'force: false' o migraciones.
                 yield paciente_2.Paciente.sync({ force: false });

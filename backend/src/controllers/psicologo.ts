@@ -1,18 +1,19 @@
 import {Request, Response} from 'express';
 import bcrypt from 'bcrypt';
-import { User } from '../models/user';
+import { Psicologo } from '../models/psicologo';
 import { Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
 
 export const registro = async ( req: Request, res: Response) => {
 
-    const { nombre, apellidoPaterno, apellidoMaterno, fecha_nacimiento, especialidad, telefono,  contrasena, correo, cedula} = req.body;
+    const { nombre, apellidoPaterno, apellidoMaterno, fecha_nacimiento, especialidad, telefono, contrasena, correo, cedula } = req.body;
+
      
     const contrasenaHash = await bcrypt.hash(contrasena,10);
 
    // const userUnique = await User.findOne({where: {correo: correo, cedula: cedula}});    
     //validar si el correo o cedula ya estan registrados
-    const userUnico = await User.findOne({where: {[Op.or]: {correo: correo, cedula: cedula}}})
+    const userUnico = await Psicologo.findOne({where: {[Op.or]: {correo: correo, cedula: cedula}}})
     if( userUnico){
         return res.status(400).json(
              {msg: 'El usuario ya existe ${correo} o la credencial ${cedula}'}
@@ -20,7 +21,7 @@ export const registro = async ( req: Request, res: Response) => {
     }
 
     try {
-         User.create({
+         Psicologo.create({
         nombre: nombre,
         apellidoPaterno: apellidoPaterno,
         apellidoMaterno: apellidoMaterno,
@@ -51,7 +52,7 @@ export const login = async(req: Request, res: Response) => {
    
     const {correo, contrasena} = req.body;
 
-    const userUnico: any = await User.findOne({where: {correo: correo}});
+    const userUnico: any = await Psicologo.findOne({where: {correo: correo}});
 
     if(!userUnico){
          return res.status(400).json(

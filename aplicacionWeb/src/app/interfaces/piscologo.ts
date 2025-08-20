@@ -1,11 +1,11 @@
-export interface psicologo{
+export interface Psicologo{
     nombre: string,
     apellidoPaterno: string,
     apellidoMaterno: string,
     fecha_nacimiento: string,
     especialidad: string,
-    cedulaProfesional: number,
-    numTelefonico: number,
+    cedula: string,
+    telefono: number,
     correo: string,
-    contraseña: string,
+    contrasena: string,
 }
