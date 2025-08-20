@@ -30,7 +30,7 @@ export class LoginComponent {
   ){ }
 
   iniciarSeccion(){
-    console.log(this.correo );
+    console.log('el correo es ${this.correo}' );
     
     if (this.correo == '' || this.contrasena == ''){
       this.toastr.error("Todos los campos son obligatorios", "Error");
@@ -44,7 +44,8 @@ export class LoginComponent {
     this.loading = true;
 
     this._psicologoService.iniciarSesion(psicologo).subscribe({
-      next: (token) =>{
+      next: (response: any) =>{
+        const token = response.token;
         console.log(token);
         this.loading= false
         this.toastr.success("", "Bienvenido");
