@@ -11,31 +11,27 @@
             <!-- Campo: Correo -->
             <div class="mb-3 w-100 px-4">
               <label for="correo" class="form-label">Correo</label>
-              <input id="correo" formControlName="correo" type="text" class="form-control" placeholder="Ingrese correo">
-              <span class="text-danger" >
-                El campo es requerido
-              </span>
+              <input id="correo" [(ngModel)]="correo" type="text" class="form-control" placeholder="Ingrese correo">
+              
             </div>
 
             <!-- Campo: Contraseña -->
             <div class="mb-3 w-100 px-4">
               <label for="contrasena" class="form-label">Contraseña</label>
-              <input id="contrasena" formControlName="Contrasena" type="password" class="form-control" placeholder="Ingrese contraseña">
-              <span class="text-danger" >
-                El campo es requerido
-              </span>
+              <input id="contrasena" [(ngModel)]="contrasena" type="password" class="form-control" placeholder="Ingrese contraseña">
+              
             </div>
 
             <!-- Botón centrado -->
             <div class="d-flex justify-content-center mt-4 px-4">
-              <button type="submit" class="btn btn-primary px-4">Iniciar sesión</button>
+              <button type="submit" (click)="iniciarSeccion()" class="btn btn-primary px-4">Iniciar sesión</button>
             </div>
 
             <!-- Recuperar contraseña -->
             <div class="text-center mt-3">
               <a href="#" class="text-primary text-decoration-none">¿Olvidaste tu contraseña?</a>
             </div>
-
+            <app-loading *ngIf="loading"/>
           </form>
         </div>
       </div>

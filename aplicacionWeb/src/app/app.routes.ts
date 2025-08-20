@@ -5,6 +5,7 @@ import { LoginComponent } from './estaticos/login/login.component';
 import { DueloPerdidaComponent } from './estaticos/duelo-perdida/duelo-perdida.component';
 import { ContactosApoyoComponent } from './estaticos/contactos-apoyo/contactos-apoyo.component';
 import { RegistroComponent } from './estaticos/registro/registro.component';
+import { AgendaCitasDashboardComponent } from './psicologo/agenda-citas-dashboard/agenda-citas-dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -12,5 +13,7 @@ export const routes: Routes = [
   { path: 'contactos-de-apoyo', component: ContactosApoyoComponent },
   { path: 'iniciar-sesion', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
+  { path: 'agenda', component: AgendaCitasDashboardComponent },
+
 ];
 

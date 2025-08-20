@@ -3,7 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { UserService } from '../../services/user.service';
+import { PsicologoService } from '../../services/psicologo.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorService } from '../../services/error.service';
 
 @Component({
   selector: 'app-registro',
@@ -27,9 +29,10 @@ export class RegistroComponent implements OnInit {
   //contrasena: any;
 
   constructor(
-    private userService: UserService,
+    private userService: PsicologoService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private _errorServices : ErrorService
   ) {}
 
   ngOnInit(): void {}
@@ -73,10 +76,10 @@ export class RegistroComponent implements OnInit {
         this.toastr.success('Psicólogo registrado correctamente');
         this.router.navigate(['/iniciar-sesion']);
       },
-      error: (err) => {
-        console.error(err);
-        this.toastr.error('Error al registrar');
+        error: (event: HttpErrorResponse) => {
+        this._errorServices.mensajeError(event);
       }
     });
+
   }
 }
