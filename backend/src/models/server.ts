@@ -52,10 +52,12 @@ class Server {
     private async connetionBaseDatos() {
         try {
             // await sequelize.authenticate(); // Descomenta si quieres probar la conexión
-            await Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
+            //await Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
                                               // Para desarrollo, 'force: true' puede ser útil, pero en producción
                                               // o si ya tienes datos, usa 'force: false' o migraciones.
-
+            await Psicologo.sync({ alter: true })
+                .then(() => console.log("Tablas actualizadas"))
+                .catch(err => console.error("Error al sincronizar", err));
             await Paciente.sync({ force: false });
             console.log('Conexión a la base de datos exitosa.');
         } catch (error) {

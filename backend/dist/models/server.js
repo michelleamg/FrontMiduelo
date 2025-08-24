@@ -54,9 +54,12 @@ class Server {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // await sequelize.authenticate(); // Descomenta si quieres probar la conexión
-                yield psicologo_2.Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
+                //await Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
                 // Para desarrollo, 'force: true' puede ser útil, pero en producción
                 // o si ya tienes datos, usa 'force: false' o migraciones.
+                yield psicologo_2.Psicologo.sync({ alter: true })
+                    .then(() => console.log("Tablas actualizadas"))
+                    .catch(err => console.error("Error al sincronizar", err));
                 yield paciente_2.Paciente.sync({ force: false });
                 console.log('Conexión a la base de datos exitosa.');
             }

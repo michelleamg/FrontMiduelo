@@ -8,6 +8,7 @@ import { Psicologo } from '../../interfaces/piscologo';
 import { Token } from '@angular/compiler';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorService } from '../../services/error.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +27,8 @@ export class LoginComponent {
     private _psicologoService: PsicologoService,
     private toastr: ToastrService,
     private router: Router,
-    private _errorServices: ErrorService
+    private _errorServices: ErrorService,
+    private _authService: AuthService
   ){ }
 
   iniciarSeccion(){
@@ -46,6 +48,7 @@ export class LoginComponent {
     this._psicologoService.iniciarSesion(psicologo).subscribe({
       next: (response: any) =>{
         const token = response.token;
+        this._authService.setToken(token);
         console.log(token);
         this.loading= false
         this.toastr.success("", "Bienvenido");

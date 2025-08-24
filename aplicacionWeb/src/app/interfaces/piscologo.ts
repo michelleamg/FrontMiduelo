@@ -5,7 +5,7 @@ export interface Psicologo{
     fecha_nacimiento?: string,
     especialidad?: string,
     cedula?: string,
-    telefono?: number,
+    telefono?: string,
     correo: string,
     contrasena: string,
 }

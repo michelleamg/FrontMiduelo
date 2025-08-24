@@ -30,7 +30,9 @@
             <div class="text-center mt-3">
               <a href="#" class="text-primary text-decoration-none">¿Olvidaste tu contraseña?</a>
             </div>
-            <app-loading *ngIf="loading"/>
+            @if (loading) {
+            <app-loading />
+            }
           </form>
         </div>
       </div>

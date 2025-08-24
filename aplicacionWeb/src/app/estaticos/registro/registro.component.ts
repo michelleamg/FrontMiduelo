@@ -22,7 +22,7 @@ export class RegistroComponent implements OnInit {
   fecha_nacimiento: string = '';
   especialidad: string = '';
   cedulaProfesional: string = '';
-  numTelefonico: number | null = null;
+  numTelefonico: string | null = null;
   correo: string = '';
   contrasena: string = '';
   confirmarContrasena: string = '';
@@ -44,7 +44,7 @@ export class RegistroComponent implements OnInit {
       this.apellidoPaterno === '' ||
       this.fecha_nacimiento === '' ||
       this.especialidad === '' ||
-      this.cedulaProfesional === null ||
+      this.cedulaProfesional === '' ||
       this.numTelefonico === null
     ) {
       this.toastr.error('Todos los campos son obligatorios',"Error");

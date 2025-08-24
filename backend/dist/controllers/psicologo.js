@@ -22,9 +22,9 @@ const registro = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const contrasenaHash = yield bcrypt_1.default.hash(contrasena, 10);
     // const userUnique = await User.findOne({where: {correo: correo, cedula: cedula}});    
     //validar si el correo o cedula ya estan registrados
-    const userUnico = yield psicologo_1.Psicologo.findOne({ where: { [sequelize_1.Op.or]: { correo: correo, cedula: cedula } } });
+    const userUnico = yield psicologo_1.Psicologo.findOne({ where: { [sequelize_1.Op.or]: { correo: correo, cedula: cedula, telefono: telefono } } });
     if (userUnico) {
-        return res.status(400).json({ msg: 'El usuario ya existe ${correo} o la credencial ${cedula}' });
+        return res.status(400).json({ msg: `El usuario ya existe ${correo} o la credencial ${cedula} o numero telefonico: ${telefono}` });
     }
     try {
         psicologo_1.Psicologo.create({

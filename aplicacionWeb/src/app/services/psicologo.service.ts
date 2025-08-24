@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Psicologo } from '../interfaces/piscologo';
 import { Observable } from 'rxjs';
@@ -20,6 +20,8 @@ export class PsicologoService {
     return this.http.post(`${this.AppUrl}${this.APIUrl}/registro`, usuario);
   }
   iniciarSesion(usuario: Psicologo): Observable <string>{
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.post<string>(`${this.AppUrl}${this.APIUrl}/iniciar-sesion`, usuario);
   }
 }
