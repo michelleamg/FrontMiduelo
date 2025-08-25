@@ -18,11 +18,10 @@ private AppUrl: string;
   }
 
   
-  getListaSPacientes(): Observable <Paciente[]>{
-
-
+  getListaPacientes(): Observable<Paciente[]> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post<Paciente[]>(`${this.AppUrl}${this.APIUrl}/getPacientes`, {headers: headers});
+    return this.http.get<Paciente[]>(`${this.AppUrl}api/paciente/lista-pacientes`, { headers });
   }
+
 }

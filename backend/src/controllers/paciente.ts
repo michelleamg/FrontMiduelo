@@ -27,15 +27,7 @@ export const registroPaciente = async ( req: Request, res: Response) => {
     }
 }
 
-//creamos el login 
 
-export const login = async(req: Request, res: Response) => {
-    console.log(req.body);
-    res.json({
-        msg: 'Inicio de seccion  Exitoso =>',
-        body: req.body
-    });
-}
 
 export const getPacientes = async (req: Request, res: Response) =>{
     const listaPacientes = await Paciente.findAll();
