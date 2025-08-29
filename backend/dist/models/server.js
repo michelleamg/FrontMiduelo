@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const psicologo_1 = __importDefault(require("../routes/psicologo")); // Importa el router directamente
 const paciente_1 = __importDefault(require("../routes/paciente")); // Importa el router directamente
+const agenda_1 = __importDefault(require("../routes/agenda"));
 const psicologo_2 = require("./psicologo");
 const paciente_2 = require("./paciente");
 const cors_1 = __importDefault(require("cors"));
@@ -42,6 +43,7 @@ class Server {
     routes() {
         this.app.use(psicologo_1.default); // Usa el router importado
         this.app.use(paciente_1.default); // Usa el router importado
+        this.app.use(agenda_1.default);
     }
     // Método para iniciar el servidor
     listen() {

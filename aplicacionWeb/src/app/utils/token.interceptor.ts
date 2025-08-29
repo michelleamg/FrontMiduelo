@@ -20,7 +20,7 @@ export class TokenInterceptor implements HttpInterceptor{
       return next.handle(request).pipe(catchError((error: HttpErrorResponse)=>{
         if(error.status === 401){
           this._errorService.mensajeError(error)
-          this.router.navigate(['/login'])
+          this.router.navigate(['/iniciar-sesion'])
         }
         return throwError( () => new Error('Error'))
       }

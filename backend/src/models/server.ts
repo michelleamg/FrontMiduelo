@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import sequelize from '../database/connection'; // Asegúrate de que esta ruta sea correcta
 import router from '../routes/psicologo'; // Importa el router directamente
 import paciente from '../routes/paciente'; // Importa el router directamente
+import agendaRoutes from '../routes/agenda';
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
 import cors from 'cors';
@@ -39,6 +40,7 @@ class Server {
     private routes() {
         this.app.use(router); // Usa el router importado
         this.app.use(paciente); // Usa el router importado
+        this.app.use(agendaRoutes);
     }
 
     // Método para iniciar el servidor
