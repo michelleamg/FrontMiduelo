@@ -1,1 +1,62 @@
-<p>agenda-citas-dashboard works!</p>
+<div class="container my-4">
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-primary">
+      Semana {{ rangoSemana }}
+    </h3>
+    <div>
+      <button class="btn btn-outline-primary me-2" (click)="anteriorSemana()">&lt;</button>
+      <button class="btn btn-outline-primary me-2" (click)="hoy()">Hoy</button>
+      <button class="btn btn-outline-primary" (click)="siguienteSemana()">&gt;</button>
+    </div>
+  </div>
+
+  <!-- Contenedor scrollable -->
+  <div class="table-responsive calendario-container">
+    <table class="table table-bordered text-center align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 10%">Hora</th>
+          <th *ngFor="let dia of diasSemana">{{ dia | date:'EEE d/MM' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hora of horas">
+          <td class="fw-bold">{{ hora }}</td>
+          <td *ngFor="let dia of diasSemana" 
+              class="position-relative celda-horario"
+              (click)="agregarEvento(dia, hora)">
+            <!-- Eventos -->
+            <div *ngFor="let evento of obtenerEventos(dia, hora)"
+                 class="evento"
+                 [ngClass]="getColorEvento(evento.meta?.estado)"
+                 (click)="manejarEvento(evento)">
+              {{ evento.title }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{{ selecionarEvent?.title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ selecionarEvent?.meta?.paciente }}</p>
+        <p><strong>Estado:</strong> {{ selecionarEvent?.meta?.estado }}</p>
+        <p><strong>Modalidad:</strong> {{ selecionarEvent?.meta?.modalidad }}</p>
+        <p><strong>Notas:</strong> {{ selecionarEvent?.meta?.notas }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

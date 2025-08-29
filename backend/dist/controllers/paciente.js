@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPacientes = exports.login = exports.registroPaciente = void 0;
+exports.getPacientes = exports.registroPaciente = void 0;
 const paciente_1 = require("../models/paciente");
 const registroPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nombre, apellidoPaterno, apellidoMaterno } = req.body;
@@ -30,15 +30,6 @@ const registroPaciente = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.registroPaciente = registroPaciente;
-//creamos el login 
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
-    res.json({
-        msg: 'Inicio de seccion  Exitoso =>',
-        body: req.body
-    });
-});
-exports.login = login;
 const getPacientes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const listaPacientes = yield paciente_1.Paciente.findAll();
     res.json({ listaPacientes });
