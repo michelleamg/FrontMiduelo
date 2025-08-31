@@ -1,12 +1,17 @@
 // File: src/models/server.ts
 import express, { Application } from 'express';
 import sequelize from '../database/connection'; // Asegúrate de que esta ruta sea correcta
-import router from '../routes/psicologo'; // Importa el router directamente
-import paciente from '../routes/paciente'; // Importa el router directamente
+import routerPsico  from '../routes/psicologo'; // Importa el router directamente
+import pacienteRouter  from '../routes/paciente'; // Importa el router directamente
 import agendaRoutes from '../routes/agenda';
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
+import { Agenda } from './agenda/agenda';
+import { Cita } from './agenda/cita';
+import { Recordatorio } from './agenda/recordatorio';
 import cors from 'cors';
+import cron from 'node-cron';
+import { Op } from 'sequelize';
 
 class Server {
     private app: Application;
@@ -38,8 +43,8 @@ class Server {
 
     // Método para configurar las rutas
     private routes() {
-        this.app.use(router); // Usa el router importado
-        this.app.use(paciente); // Usa el router importado
+        this.app.use(routerPsico ); // Usa el router importado
+        this.app.use(pacienteRouter ); // Usa el router importado
         this.app.use(agendaRoutes);
     }
 
@@ -60,14 +65,62 @@ class Server {
             await Psicologo.sync({ alter: true })
                 .then(() => console.log("Tablas actualizadas"))
                 .catch(err => console.error("Error al sincronizar", err));
+
             await Paciente.sync({ force: false });
+            
+            await Agenda.sync({ alter: true });
+            await Cita.sync({ alter: true });
+            await Recordatorio.sync({ alter: true });
             console.log('Conexión a la base de datos exitosa.');
-        } catch (error) {
-            console.error('Error de conexión a la base de datos:', error);
-            // Considera salir del proceso o manejar el error de forma más robusta
+            console.log('Tablas sincronizadas correctamente.');
+        // Programar cron: revisar citas para mañana a las 00:05
+      cron.schedule('5 0 * * *', async () => {
+        try {
+          const mañana = new Date();
+          mañana.setDate(mañana.getDate() + 1);
+          const fechaManana = mañana.toISOString().slice(0,10);
+
+          // buscar citas pendientes para mañana
+          const citas = await Cita.findAll({
+            where: {
+              fecha: fechaManana,
+              estado: { [Op.in]: ["pendiente","confirmada"] }
+            },
+            include: [{ model: Agenda }] // para obtener id_psicologo
+          });
+
+          for (const cita of citas) {
+            const id_cita = (cita as any).id_cita;
+            const id_agenda = (cita as any).id_agenda;
+            const agenda = await Agenda.findByPk(id_agenda);
+            const id_psicologo = (agenda as any).id_psicologo;
+            const id_paciente = (cita as any).id_paciente;
+
+            const mensaje = `Recordatorio: Tienes cita el ${fechaManana} de ${(cita as any).hora_inicio} a ${(cita as any).hora_fin}`;
+
+            await Recordatorio.create({
+              id_cita,
+              id_psicologo,
+              id_paciente,
+              mensaje,
+              fecha_programada: new Date() // ahora, o ajusta horario de envío
+            });
+
+            console.log("Recordatorio creado para cita:", id_cita, mensaje);
+            // Aquí podrías invocar un servicio de email/push
+          }
+        } catch (err) {
+          console.error("Error en cron de recordatorios:", err);
         }
+      }, {
+        timezone: 'America/Mexico_City'
+      });
+
+      console.log('Cron de recordatorios programado.');
+    } catch (error) {
+      console.error('Error al sincronizar DB:', error);
     }
+  }
 }
 
 export default Server;
-

@@ -19,7 +19,12 @@ const paciente_1 = __importDefault(require("../routes/paciente")); // Importa el
 const agenda_1 = __importDefault(require("../routes/agenda"));
 const psicologo_2 = require("./psicologo");
 const paciente_2 = require("./paciente");
+const agenda_2 = require("./agenda/agenda");
+const cita_1 = require("./agenda/cita");
+const recordatorio_1 = require("./agenda/recordatorio");
 const cors_1 = __importDefault(require("cors"));
+const node_cron_1 = __importDefault(require("node-cron"));
+const sequelize_1 = require("sequelize");
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -63,11 +68,53 @@ class Server {
                     .then(() => console.log("Tablas actualizadas"))
                     .catch(err => console.error("Error al sincronizar", err));
                 yield paciente_2.Paciente.sync({ force: false });
+                yield agenda_2.Agenda.sync({ alter: true });
+                yield cita_1.Cita.sync({ alter: true });
+                yield recordatorio_1.Recordatorio.sync({ alter: true });
                 console.log('Conexión a la base de datos exitosa.');
+                console.log('Tablas sincronizadas correctamente.');
+                // Programar cron: revisar citas para mañana a las 00:05
+                node_cron_1.default.schedule('5 0 * * *', () => __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        const mañana = new Date();
+                        mañana.setDate(mañana.getDate() + 1);
+                        const fechaManana = mañana.toISOString().slice(0, 10);
+                        // buscar citas pendientes para mañana
+                        const citas = yield cita_1.Cita.findAll({
+                            where: {
+                                fecha: fechaManana,
+                                estado: { [sequelize_1.Op.in]: ["pendiente", "confirmada"] }
+                            },
+                            include: [{ model: agenda_2.Agenda }] // para obtener id_psicologo
+                        });
+                        for (const cita of citas) {
+                            const id_cita = cita.id_cita;
+                            const id_agenda = cita.id_agenda;
+                            const agenda = yield agenda_2.Agenda.findByPk(id_agenda);
+                            const id_psicologo = agenda.id_psicologo;
+                            const id_paciente = cita.id_paciente;
+                            const mensaje = `Recordatorio: Tienes cita el ${fechaManana} de ${cita.hora_inicio} a ${cita.hora_fin}`;
+                            yield recordatorio_1.Recordatorio.create({
+                                id_cita,
+                                id_psicologo,
+                                id_paciente,
+                                mensaje,
+                                fecha_programada: new Date() // ahora, o ajusta horario de envío
+                            });
+                            console.log("Recordatorio creado para cita:", id_cita, mensaje);
+                            // Aquí podrías invocar un servicio de email/push
+                        }
+                    }
+                    catch (err) {
+                        console.error("Error en cron de recordatorios:", err);
+                    }
+                }), {
+                    timezone: 'America/Mexico_City'
+                });
+                console.log('Cron de recordatorios programado.');
             }
             catch (error) {
-                console.error('Error de conexión a la base de datos:', error);
-                // Considera salir del proceso o manejar el error de forma más robusta
+                console.error('Error al sincronizar DB:', error);
             }
         });
     }

@@ -1,6 +1,6 @@
-<div class="container my-4">
-  <!-- Encabezado -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+<!-- <div class="container my-4">
+   Encabezado -->
+  <!-- <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="text-primary">
       Semana {{ rangoSemana }}
     </h3>
@@ -8,6 +8,127 @@
       <button class="btn btn-outline-primary me-2" (click)="anteriorSemana()">&lt;</button>
       <button class="btn btn-outline-primary me-2" (click)="hoy()">Hoy</button>
       <button class="btn btn-outline-primary" (click)="siguienteSemana()">&gt;</button>
+    </div> -->
+    <!-- Botón global para crear nueva cita -->
+    <!-- <div class="mt-3 text-end">
+    <button class="btn btn-primary" (click)="abrirModalCrear()">Crear Cita</button>
+    </div>
+  </div> -->
+
+  <!-- Contenedor scrollable -->
+  <!-- <div class="table-responsive calendario-container">
+    <table class="table table-bordered text-center align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 10%">Hora</th>
+          <th *ngFor="let dia of diasSemana">{{ dia | date:'EEE d/MM' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hora of horas">
+          <td class="fw-bold">{{ hora }}</td>
+          <td *ngFor="let dia of diasSemana" 
+              class="position-relative celda-horario"
+              (click)="agregarEvento(dia, hora)"> -->
+            <!-- Eventos -->
+            <!-- <div *ngFor="let evento of obtenerEventos(dia, hora)"
+                 class="evento"
+                 [ngClass]="getColorEvento(evento.meta?.estado)"
+                 (click)="manejarEvento(evento)">
+              {{ evento.title }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> -->
+
+<!-- Modal de detalle -->
+<!-- <div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{{ selecionarEvent?.title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ selecionarEvent?.meta?.paciente }}</p>
+        <p><strong>Estado:</strong> {{ selecionarEvent?.meta?.estado }}</p>
+        <p><strong>Modalidad:</strong> {{ selecionarEvent?.meta?.modalidad }}</p>
+        <p><strong>Notas:</strong> {{ selecionarEvent?.meta?.notas }}</p>
+      </div>
+      <div class="modal-footer d-flex justify-content-between"> -->
+        <!-- Botón para eliminar -->
+        <!-- <button class="btn btn-danger" (click)="eliminarCita()">Eliminar</button> -->
+
+        <!-- Botón para eliminar duplicadas -->
+        <!-- <button class="btn btn-outline-danger" (click)="eliminarDuplicadas()">Eliminar duplicadas</button> -->
+
+        <!-- Botón para reagendar -->
+        <!-- <button class="btn btn-warning" (click)="abrirModalReagendar()">Reagendar</button> -->
+
+        <!-- Botón para duplicar -->
+        <!-- <button class="btn btn-secondary" (click)="abrirModalDuplicar()">Duplicar</button> -->
+
+        <!-- Botón para cerrar -->
+        <!-- <button class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<!-- Modal Reagendar -->
+<!-- <div class="modal fade" id="reagendarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title">Reagendar cita</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label>Nueva Fecha:</label>
+        <input type="date" class="form-control" [(ngModel)]="fechaReagendar">
+        <label class="mt-2">Nueva Hora:</label>
+        <input type="time" class="form-control" [(ngModel)]="horaReagendar">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="reagendar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<!-- Modal Duplicar -->
+<!-- <div class="modal fade" id="duplicarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title">Duplicar cita</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label>Días adicionales (Ctrl+Click):</label>
+        <select multiple class="form-select" [(ngModel)]="diasDuplicar">
+          <option *ngFor="let d of diasSemana" [value]="d">{{ d | date:'EEEE d/MM' }}</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="duplicar()">Duplicar</button>
+      </div>
+    </div>
+  </div>
+</div>  -->
+<div class="container my-4">
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-primary">Semana {{ rangoSemana }}</h3>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-primary" (click)="anteriorSemana()">&lt;</button>
+      <button class="btn btn-outline-primary" (click)="hoy()">Hoy</button>
+      <button class="btn btn-outline-primary" (click)="siguienteSemana()">&gt;</button>
+      <button class="btn btn-primary ms-3" (click)="abrirModalCrear()">Crear Cita</button>
     </div>
   </div>
 
@@ -23,26 +144,27 @@
       <tbody>
         <tr *ngFor="let hora of horas">
           <td class="fw-bold">{{ hora }}</td>
-          <td *ngFor="let dia of diasSemana" 
-              class="position-relative celda-horario"
-              (click)="agregarEvento(dia, hora)">
-            <!-- Eventos -->
+
+          <td *ngFor="let dia of diasSemana"
+              [ngClass]="{'celda-horario': true, 'ocupado': isBloqueado(dia, hora)}">
+            <!-- Mostrar solo eventos que INICIAN en este slot -->
             <div *ngFor="let evento of obtenerEventos(dia, hora)"
                  class="evento"
                  [ngClass]="getColorEvento(evento.meta?.estado)"
-                 (click)="manejarEvento(evento)">
+                 (click)="manejarEvento(evento, $event)">
               {{ evento.title }}
             </div>
           </td>
+
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Detalle -->
 <div class="modal fade" id="eventModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">{{ selecionarEvent?.title }}</h5>
@@ -53,9 +175,115 @@
         <p><strong>Estado:</strong> {{ selecionarEvent?.meta?.estado }}</p>
         <p><strong>Modalidad:</strong> {{ selecionarEvent?.meta?.modalidad }}</p>
         <p><strong>Notas:</strong> {{ selecionarEvent?.meta?.notas }}</p>
+        <p>
+          <strong>Horario:</strong>
+          {{ selecionarEvent?.hora }} - {{ selecionarEvent ? (finEvento(selecionarEvent)) : '' }}
+        </p>
+      </div>
+      <div class="modal-footer flex-wrap gap-2">
+        <button class="btn btn-danger" (click)="eliminarCita()">Eliminar</button>
+        <button class="btn btn-outline-danger" (click)="eliminarDuplicadas()">Eliminar duplicadas</button>
+        <button class="btn btn-warning" (click)="abrirModalReagendar()">Reagendar</button>
+        <button class="btn btn-secondary" (click)="abrirModalDuplicar()">Duplicar</button>
+        <button class="btn btn-light ms-auto" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Reagendar -->
+<div class="modal fade" id="reagendarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title">Reagendar cita</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Nueva Fecha:</label>
+        <input type="date" class="form-control" [(ngModel)]="fechaReagendar">
+        <label class="form-label mt-2">Nueva Hora:</label>
+        <input type="time" class="form-control" [(ngModel)]="horaReagendar">
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-success" (click)="reagendar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Duplicar -->
+<div class="modal fade" id="duplicarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title">Duplicar cita</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Días adicionales (Ctrl+Click):</label>
+        <select multiple class="form-select" [(ngModel)]="diasDuplicar">
+          <option *ngFor="let d of diasSemana" [ngValue]="d">
+            {{ d | date:'EEEE d/MM' }}
+          </option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="duplicar()">Duplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear -->
+<div class="modal fade" id="crearModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Crear Cita</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-control" [(ngModel)]="crearFecha">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Hora</label>
+            <input type="time" class="form-control" [(ngModel)]="crearHora">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Duración (min)</label>
+            <input type="number" min="15" step="15" class="form-control" [(ngModel)]="crearDuracionMin">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Paciente</label>
+            <input type="text" class="form-control" [(ngModel)]="crearPaciente">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Modalidad</label>
+            <select class="form-select" [(ngModel)]="crearModalidad">
+              <option>Presencial</option>
+              <option>En línea</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="crearEstado">
+              <option>Pendiente</option>
+              <option>Confirmada</option>
+              <option>Cancelada</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Notas</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="crearNotas"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="confirmarCrearCita()">Guardar</button>
       </div>
     </div>
   </div>
