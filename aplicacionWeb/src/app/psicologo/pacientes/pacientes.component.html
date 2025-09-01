@@ -7,22 +7,24 @@
     
   <thead>
     <tr>
+      <th>ID</th>                           <!-- ✅ AGREGADO -->
       <th>Nombre</th>
       <th>Apellido Paterno</th>
       <th>Apellido Materno</th>
       <th>Correo</th>
-      <th scope="col"></th>
+      <th scope="col">Acciones</th>
     </tr>
   </thead>
   <tbody>
-    @for (paciente of listPacientes; track paciente) {
-      <tr  class="table-active">      
+    @for (paciente of listPacientes; track paciente.id_paciente) {
+      <tr class="table-active">      
+      <td>{{paciente.id_paciente}}</td>    <!-- ✅ AGREGADO -->
       <td>{{paciente.nombre}}</td>
-      <td>{{paciente.apellido_paterno}}</td>  <!-- ✅ CORREGIDO -->
-      <td>{{paciente.apellido_materno}}</td>  <!-- ✅ CORREGIDO -->
-      <td>{{paciente.email}}</td>             <!-- ✅ CORREGIDO -->
+      <td>{{paciente.apellido_paterno}}</td>
+      <td>{{paciente.apellido_materno}}</td>
+      <td>{{paciente.email}}</td>
       <td>
-        <button type="button" class="btn btn-secondary btn-sm ms-2" >Eliminar</button>
+        <button type="button" class="btn btn-secondary btn-sm ms-2">Eliminar</button>
       </td>
     </tr>
     }

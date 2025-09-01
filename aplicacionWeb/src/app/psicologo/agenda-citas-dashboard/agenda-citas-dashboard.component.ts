@@ -54,28 +54,47 @@ export class AgendaCitasDashboardComponent implements OnInit {
   }
 
   cargarCitas() {
-    this.agendaService.getCitas(this.idAgenda).subscribe((citas: any[]) => {
-      this.eventos = citas.map((c: any) => ({
-        title: `Cita con ${c.paciente.nombre}`,
-        dia: new Date(c.fecha),
-        hora: c.hora_inicio,
-        meta: {
-          paciente: c.paciente.nombre,
-          estado: c.estado,
-          modalidad: c.modalidad,
-          notas: c.notas,
-          duracionMin: c.duracion || 60,
-          id: c.id_cita
-        }
-      }));
-    });
-  }
+  this.agendaService.getCitas(this.idAgenda).subscribe({
+    next: (response: any) => {
+      // ✅ MANEJO CORRECTO DE LA RESPUESTA
+      const citas = response.citas || response; // Manejar ambos formatos
+      if (Array.isArray(citas)) {
+        this.eventos = citas.map((c: any) => ({
+          title: `Cita con ${c.paciente?.nombre || 'Paciente'}`,
+          dia: new Date(c.fecha),
+          hora: c.hora_inicio,
+          meta: {
+            paciente: c.paciente?.nombre || 'Paciente',
+            estado: c.estado,
+            modalidad: c.modalidad,
+            notas: c.notas,
+            duracionMin: c.duracion || 60,
+            id: c.id_cita
+          }
+        }));
+      } else {
+        console.log('No hay citas disponibles');
+        this.eventos = [];
+      }
+    },
+    error: (error) => {
+      console.error('Error al cargar citas:', error);
+      this.eventos = []; // Inicializar como array vacío en caso de error
+    }
+  });
+}
 
-  cargarPacientes() {
-    this.pacienteService.getPacientesPorPsicologo().subscribe((data: any[]) => {
+cargarPacientes() {
+  this.pacienteService.getPacientesPorPsicologo().subscribe({
+    next: (data: any[]) => {
       this.pacientes = data;
-    });
-  }
+    },
+    error: (error) => {
+      console.error('Error al cargar pacientes:', error);
+      this.pacientes = []; // Inicializar como array vacío en caso de error
+    }
+  });
+}
 
   confirmarCrearCita() {
     if (!this.crearFecha || !this.crearHora || !this.crearPacienteId) {
