@@ -8,5 +8,6 @@
     modalidad?: string;
     notas?: string;
     duracionMin?: number;    // NUEVO: duración en minutos (default 60)
+    id?: number; 
   };
 }

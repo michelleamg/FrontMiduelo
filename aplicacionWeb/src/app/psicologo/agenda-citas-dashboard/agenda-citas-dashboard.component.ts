@@ -2,6 +2,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { addDays, startOfWeek, format } from 'date-fns';
+import { PacientesService } from '../../services/pacientes.service';
+import { AgendaService } from '../../services/agenda.service';
 import { es } from 'date-fns/locale';
 import { Evento } from '../../interfaces/evento';
 
@@ -22,44 +24,153 @@ export class AgendaCitasDashboardComponent implements OnInit {
   rangoSemana = '';
   locale = 'es';
 
+  idPsicologo = 1; // Esto vendría del login
+  idAgenda = 1; // Esto podría venir del backend
+  pacientes: any[] = [];
+
   // Reagendar
-  fechaReagendar: string = '';
-  horaReagendar: string = '';
+  fechaReagendar = '';
+  horaReagendar = '';
 
   // Duplicar
   diasDuplicar: Date[] = [];
 
-  // Crear
-  crearFecha: string = '';
-  crearHora: string = '';
+  // Crear cita
+  crearFecha = '';
+  crearHora = '';
   crearDuracionMin = 60;
-  crearPaciente = '';
+  crearPacienteId: number | null = null;
   crearModalidad = 'Presencial';
   crearEstado: 'Pendiente' | 'Confirmada' | 'Cancelada' = 'Pendiente';
   crearNotas = '';
 
+  constructor(private agendaService: AgendaService, private pacienteService: PacientesService) {}
+
   ngOnInit(): void {
     this.generarSemana();
     this.generarHoras();
-    this.simulacionEventos();
+    this.cargarPacientes();
+    this.cargarCitas();
   }
 
-  // Utilidades de tiempo
+  cargarCitas() {
+    this.agendaService.getCitas(this.idAgenda).subscribe((citas: any[]) => {
+      this.eventos = citas.map((c: any) => ({
+        title: `Cita con ${c.paciente.nombre}`,
+        dia: new Date(c.fecha),
+        hora: c.hora_inicio,
+        meta: {
+          paciente: c.paciente.nombre,
+          estado: c.estado,
+          modalidad: c.modalidad,
+          notas: c.notas,
+          duracionMin: c.duracion || 60,
+          id: c.id_cita
+        }
+      }));
+    });
+  }
+
+  cargarPacientes() {
+    this.pacienteService.getPacientesPorPsicologo(this.idPsicologo).subscribe((data: any[]) => {
+      this.pacientes = data;
+    });
+  }
+
+  confirmarCrearCita() {
+    if (!this.crearFecha || !this.crearHora || !this.crearPacienteId) {
+      alert('Faltan datos obligatorios.');
+      return;
+    }
+
+    const citaData = {
+      id_agenda: this.idAgenda,
+      id_paciente: this.crearPacienteId,
+      fecha: this.crearFecha,
+      hora_inicio: this.crearHora,
+      duracion: this.crearDuracionMin,
+      modalidad: this.crearModalidad,
+      estado: this.crearEstado,
+      notas: this.crearNotas
+    };
+
+    this.agendaService.crearCita(citaData).subscribe(() => {
+      this.cargarCitas();
+      this.cerrarModal('crearModal');
+    });
+  }
+
+  eliminarCita() {
+    if (!this.selecionarEvent) return;
+    const idCita = this.selecionarEvent.meta?.id;
+    if (!idCita) return;
+
+    this.agendaService.eliminarCita(idCita).subscribe(() => {
+      this.eventos = this.eventos.filter(e => e.meta?.id !== idCita);
+      this.cerrarModal('eventModal');
+    });
+  }
+
+  reagendar() {
+    if (!this.selecionarEvent || !this.fechaReagendar || !this.horaReagendar) return;
+
+    const idCita = this.selecionarEvent.meta?.id;
+    const datos = {
+      fecha: this.fechaReagendar,
+      hora_inicio: this.horaReagendar
+    };
+    if (!idCita) {
+      console.error('No hay id de cita para actualizar');
+      return;
+    }
+    this.agendaService.actualizarCita(idCita, datos).subscribe(() => {
+      this.cargarCitas();
+      this.cerrarModal('reagendarModal');
+      this.cerrarModal('eventModal');
+    });
+  }
+
+  duplicar() {
+    if (!this.selecionarEvent || this.diasDuplicar.length === 0) return;
+
+    for (const d of this.diasDuplicar) {
+      const citaData = {
+        id_agenda: this.idAgenda,
+        id_paciente: this.pacientes.find(p => p.nombre === this.selecionarEvent?.meta?.paciente)?.id_paciente,
+        fecha: format(d, 'yyyy-MM-dd'),
+        hora_inicio: this.selecionarEvent.hora,
+        duracion: this.selecionarEvent.meta?.duracionMin || 60,
+        modalidad: this.selecionarEvent.meta?.modalidad,
+        estado: this.selecionarEvent.meta?.estado,
+        notas: this.selecionarEvent.meta?.notas
+      };
+
+      this.agendaService.crearCita(citaData).subscribe(() => {
+        this.cargarCitas();
+      });
+    }
+
+    this.cerrarModal('duplicarModal');
+    this.cerrarModal('eventModal');
+  }
+
+  // Utilidades
   private toMin(hhmm: string): number {
-    // acepta "8:00" o "08:00"
     const [h, m] = hhmm.split(':');
     return parseInt(h, 10) * 60 + parseInt(m, 10);
   }
+
   private fromMin(mins: number): string {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
-    return `${h}:${m.toString().padStart(2,'0')}`; // "H:mm"
+    return `${h}:${m.toString().padStart(2, '0')}`;
   }
+
   private normalizeHora(hhmm: string): string {
-    // pasa "08:00" => "8:00"
     const [h, m] = hhmm.split(':');
-    return `${parseInt(h, 10)}:${m.padStart(2,'0')}`;
+    return `${parseInt(h, 10)}:${m.padStart(2, '0')}`;
   }
+
   finEvento(e: Evento): string {
     const dur = e.meta?.duracionMin ?? 60;
     return this.fromMin(this.toMin(e.hora) + dur);
@@ -74,35 +185,10 @@ export class AgendaCitasDashboardComponent implements OnInit {
   }
 
   generarHoras() {
-    // intervalos de 60 min
     this.horas = [];
     for (let h = 8; h <= 20; h++) this.horas.push(`${h}:00`);
   }
 
-  simulacionEventos() {
-    this.eventos = [
-      {
-        title: 'Cita con Juan Pérez',
-        dia: this.diasSemana[1],
-        hora: '10:00',
-        meta: { paciente: 'Juan Pérez', estado: 'Pendiente', modalidad: 'Presencial', duracionMin: 60 }
-      },
-      {
-        title: 'Cita con Ana Gómez',
-        dia: this.diasSemana[2],
-        hora: '15:00',
-        meta: { paciente: 'Ana Gómez', estado: 'Confirmada', modalidad: 'En línea', duracionMin: 120 }
-      },
-      {
-        title: 'Cita con Pedro',
-        dia: this.diasSemana[4],
-        hora: '12:00',
-        meta: { paciente: 'Pedro', estado: 'Cancelada', modalidad: 'Presencial', duracionMin: 30 }
-      }
-    ];
-  }
-
-  // Eventos que INICIAN exactamente en ese slot
   obtenerEventos(dia: Date, hora: string): Evento[] {
     return this.eventos.filter(e =>
       e.dia.toDateString() === dia.toDateString() &&
@@ -110,25 +196,20 @@ export class AgendaCitasDashboardComponent implements OnInit {
     );
   }
 
-  // Celda ocupada por el rango de una cita que comenzó antes
   isBloqueado(dia: Date, hora: string): boolean {
     const slot = this.toMin(this.normalizeHora(hora));
     return this.eventos.some(e => {
       if (e.dia.toDateString() !== dia.toDateString()) return false;
       const ini = this.toMin(this.normalizeHora(e.hora));
       const fin = this.toMin(this.finEvento(e));
-      // ocupado si el slot cae dentro del intervalo (ini, fin) excluyendo el inicio
       return slot > ini && slot < fin;
     });
   }
 
-  // QUITADO: agregarEvento por click en celda. Ya no se puede crear así.
-
   manejarEvento(evento: Evento, ev?: Event) {
     this.selecionarEvent = evento;
     if (ev) ev.stopPropagation();
-    const modal = new (window as any).bootstrap.Modal(document.getElementById('eventModal'));
-    modal.show();
+    this.abrirModal('eventModal');
   }
 
   anteriorSemana() {
@@ -155,11 +236,34 @@ export class AgendaCitasDashboardComponent implements OnInit {
     }
   }
 
-  // Acciones
-  eliminarCita() {
-    if (!this.selecionarEvent) return;
-    this.eventos = this.eventos.filter(e => e !== this.selecionarEvent);
-    this.cerrarModal('eventModal');
+  abrirModal(id: string) {
+    const modal = new (window as any).bootstrap.Modal(document.getElementById(id));
+    modal.show();
+  }
+
+  cerrarModal(id: string) {
+    const modalEl = document.getElementById(id);
+    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+
+
+  // Crear Cita
+  abrirModalCrear() {
+    // defaults sensatos
+    this.crearFecha = format(new Date(), 'yyyy-MM-dd');
+    this.crearHora = '08:00';
+    this.crearDuracionMin = 60;
+    
+    this.crearModalidad = 'Presencial';
+    this.crearEstado = 'Pendiente';
+    this.crearNotas = '';
+    this.abrirModal('crearModal');
+  }
+
+  abrirModalDuplicar() {
+    this.diasDuplicar = [];
+    this.abrirModal('duplicarModal');
   }
 
   eliminarDuplicadas() {
@@ -173,81 +277,5 @@ export class AgendaCitasDashboardComponent implements OnInit {
     this.fechaReagendar = '';
     this.horaReagendar = '';
     this.abrirModal('reagendarModal');
-  }
-
-  reagendar() {
-    if (!this.selecionarEvent) return;
-    if (this.fechaReagendar && this.horaReagendar) {
-      this.selecionarEvent.dia = new Date(this.fechaReagendar);
-      this.selecionarEvent.hora = this.normalizeHora(this.horaReagendar);
-    }
-    this.cerrarModal('reagendarModal');
-    this.cerrarModal('eventModal');
-  }
-
-  abrirModalDuplicar() {
-    this.diasDuplicar = [];
-    this.abrirModal('duplicarModal');
-  }
-
-  duplicar() {
-    if (!this.selecionarEvent) return;
-    for (const d of this.diasDuplicar) {
-      const copia: Evento = {
-        ...this.selecionarEvent,
-        dia: new Date(d),
-        hora: this.normalizeHora(this.selecionarEvent.hora),
-        meta: { ...this.selecionarEvent.meta }
-      };
-      this.eventos.push(copia);
-    }
-    this.cerrarModal('duplicarModal');
-    this.cerrarModal('eventModal');
-  }
-
-  // Crear Cita
-  abrirModalCrear() {
-    // defaults sensatos
-    this.crearFecha = format(new Date(), 'yyyy-MM-dd');
-    this.crearHora = '08:00';
-    this.crearDuracionMin = 60;
-    this.crearPaciente = '';
-    this.crearModalidad = 'Presencial';
-    this.crearEstado = 'Pendiente';
-    this.crearNotas = '';
-    this.abrirModal('crearModal');
-  }
-
-  confirmarCrearCita() {
-    if (!this.crearFecha || !this.crearHora || !this.crearPaciente) {
-      alert('Faltan datos: fecha, hora y paciente son obligatorios.');
-      return;
-    }
-    const nuevo: Evento = {
-      title: `Cita con ${this.crearPaciente}`,
-      dia: new Date(this.crearFecha),
-      hora: this.normalizeHora(this.crearHora),
-      meta: {
-        paciente: this.crearPaciente,
-        estado: this.crearEstado,
-        modalidad: this.crearModalidad,
-        notas: this.crearNotas,
-        duracionMin: this.crearDuracionMin || 60
-      }
-    };
-    this.eventos.push(nuevo);
-    this.cerrarModal('crearModal');
-  }
-
-  // Modales
-  abrirModal(id: string) {
-    const modal = new (window as any).bootstrap.Modal(document.getElementById(id));
-    modal.show();
-  }
-
-  cerrarModal(id: string) {
-    const modalEl = document.getElementById(id);
-    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
-    if (modal) modal.hide();
   }
 }

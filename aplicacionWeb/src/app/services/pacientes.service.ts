@@ -24,4 +24,8 @@ private AppUrl: string;
     return this.http.get<Paciente[]>(`${this.AppUrl}api/paciente/lista-pacientes`, { headers });
   }
 
+  getPacientesPorPsicologo(idPsicologo: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.AppUrl}/pacientes/${idPsicologo}`);
+  }
+
 }

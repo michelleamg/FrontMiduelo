@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';  // importa tu AuthService
 import { environment } from '../../environments/environment.development';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AgendaService {
@@ -28,8 +29,8 @@ export class AgendaService {
     return this.http.get(`${this.AppUrl}${this.APIUrl}/agenda/${id_psicologo}`, this.getHeaders());
   }
 
-  getCitas(id_agenda: number) {
-    return this.http.get(`${this.AppUrl}${this.APIUrl}/citas/${id_agenda}`, this.getHeaders());
+  getCitas(id_agenda: number): Observable<any[]>  {
+    return this.http.get<any[]>(`${this.AppUrl}${this.APIUrl}/citas/${id_agenda}`, this.getHeaders());
   }
 
   crearCita(cita: any) {
