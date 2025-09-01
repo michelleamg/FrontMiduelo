@@ -8,5 +8,5 @@ const paciente_1 = require("../controllers/paciente");
 const validarToken_1 = __importDefault(require("./validarToken"));
 const router = (0, express_1.Router)();
 router.post("/api/paciente/registro", paciente_1.registroPaciente);
-router.get("/api/paciente/lista-pacientes", validarToken_1.default, paciente_1.getPacientes);
+router.get("/api/psicologo/lista-pacientes", validarToken_1.default, paciente_1.getPacientes);
 exports.default = router;

@@ -16,12 +16,12 @@ export class PacientesComponent {
   }
 
   ngOnInit(): void {
-  this.getListaPacientes();
+  this.getPacientesPorPsicologo();
 
 }
 
- getListaPacientes(){
-    this._pacienteServices.getListaPacientes().subscribe((data)=>{
+ getPacientesPorPsicologo(){
+    this._pacienteServices.getPacientesPorPsicologo().subscribe((data)=>{
       this.listPacientes = data;
     })
   }

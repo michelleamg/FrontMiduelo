@@ -18,9 +18,9 @@
     @for (paciente of listPacientes; track paciente) {
       <tr  class="table-active">      
       <td>{{paciente.nombre}}</td>
-      <td>{{paciente.apellidoPaterno}}</td>
-      <td>{{paciente.apellidoMaterno }}</td>
-      <td>{{paciente.correo}}</td>
+      <td>{{paciente.apellido_paterno}}</td>  <!-- ✅ CORREGIDO -->
+      <td>{{paciente.apellido_materno}}</td>  <!-- ✅ CORREGIDO -->
+      <td>{{paciente.email}}</td>             <!-- ✅ CORREGIDO -->
       <td>
         <button type="button" class="btn btn-secondary btn-sm ms-2" >Eliminar</button>
       </td>

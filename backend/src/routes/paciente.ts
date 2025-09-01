@@ -4,7 +4,7 @@ import validarToken from './validarToken';
 
 const router = Router();
 router.post("/api/paciente/registro", registroPaciente);
-router.get("/api/paciente/lista-pacientes", validarToken, getPacientes);
+router.get("/api/psicologo/lista-pacientes", validarToken, getPacientes);
 
 
 export default router;
