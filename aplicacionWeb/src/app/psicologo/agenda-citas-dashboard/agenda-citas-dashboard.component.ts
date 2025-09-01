@@ -72,7 +72,7 @@ export class AgendaCitasDashboardComponent implements OnInit {
   }
 
   cargarPacientes() {
-    this.pacienteService.getPacientesPorPsicologo(this.idPsicologo).subscribe((data: any[]) => {
+    this.pacienteService.getPacientesPorPsicologo().subscribe((data: any[]) => {
       this.pacientes = data;
     });
   }

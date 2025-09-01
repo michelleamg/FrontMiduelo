@@ -7,17 +7,24 @@ exports.Cita = void 0;
 // models/cita.ts
 const sequelize_1 = require("sequelize");
 const connection_1 = __importDefault(require("../../database/connection"));
+// src/models/cita.ts
+const agenda_1 = require("./agenda");
+const paciente_1 = require("../paciente");
 exports.Cita = connection_1.default.define("cita", {
-    id_cita: { type: sequelize_1.DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id_cita: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
     id_agenda: { type: sequelize_1.DataTypes.INTEGER, allowNull: false },
     id_paciente: { type: sequelize_1.DataTypes.INTEGER, allowNull: false },
     fecha: { type: sequelize_1.DataTypes.DATEONLY, allowNull: false },
     hora_inicio: { type: sequelize_1.DataTypes.TIME, allowNull: false },
     hora_fin: { type: sequelize_1.DataTypes.TIME, allowNull: false },
-    modalidad: { type: sequelize_1.DataTypes.STRING(50) },
-    estado: { type: sequelize_1.DataTypes.ENUM('pendiente', 'confirmada', 'cancelada', 'realizada', 'reprogramada'), defaultValue: 'pendiente' },
-    notas: { type: sequelize_1.DataTypes.TEXT }
+    modalidad: { type: sequelize_1.DataTypes.STRING(50), allowNull: true },
+    estado: { type: sequelize_1.DataTypes.ENUM("pendiente", "confirmada", "cancelada", "realizada", "reprogramada"), defaultValue: "pendiente" },
+    notas: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
+    fecha_reprogramacion: { type: sequelize_1.DataTypes.DATEONLY, allowNull: true }
 }, {
     tableName: "cita",
-    timestamps: false
+    timestamps: true,
+    freezeTableName: true,
 });
+exports.Cita.belongsTo(agenda_1.Agenda, { foreignKey: "id_agenda", targetKey: "id_agenda" });
+exports.Cita.belongsTo(paciente_1.Paciente, { foreignKey: "id_paciente", targetKey: "id_paciente" });

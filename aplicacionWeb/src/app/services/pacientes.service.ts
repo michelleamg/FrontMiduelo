@@ -9,23 +9,20 @@ import { Observable } from 'rxjs';
 })
 export class PacientesService {
 
-private AppUrl: string;
+  private AppUrl: string;
   private APIUrl: string;
 
   constructor(private http: HttpClient) {
-    this.AppUrl = environment.apiUrl;  // Corregí la coma por punto y coma
-    this.APIUrl = "api/pacientes";
+    this.AppUrl = environment.apiUrl;
+    this.APIUrl = "api/paciente";
   }
+
+  // ✅ MÉTODO SIMPLIFICADO - El token se agrega automáticamente por el interceptor
+  getPacientesPorPsicologo(): Observable<Paciente[]> {
+    // El interceptor ya agrega el token Bearer automáticamente
+    return this.http.get<Paciente[]>(`${this.AppUrl}${this.APIUrl}/lista-pacientes`);
+  }
+}
 
   
-  getListaPacientes(): Observable<Paciente[]> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<Paciente[]>(`${this.AppUrl}api/paciente/lista-pacientes`, { headers });
-  }
 
-  getPacientesPorPsicologo(idPsicologo: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.AppUrl}/pacientes/${idPsicologo}`);
-  }
-
-}
