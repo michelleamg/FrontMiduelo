@@ -20,8 +20,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const registro = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nombre, apellidoPaterno, apellidoMaterno, fecha_nacimiento, especialidad, telefono, contrasena, correo, cedula } = req.body;
     const contrasenaHash = yield bcrypt_1.default.hash(contrasena, 10);
-    // const userUnique = await User.findOne({where: {correo: correo, cedula: cedula}});    
-    //validar si el correo o cedula ya estan registrados
     const userUnico = yield psicologo_1.Psicologo.findOne({ where: { [sequelize_1.Op.or]: { correo: correo, cedula: cedula, telefono: telefono } } });
     if (userUnico) {
         return res.status(400).json({ msg: `El usuario ya existe ${correo} o la credencial ${cedula} o numero telefonico: ${telefono}` });
@@ -39,7 +37,6 @@ const registro = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             cedula: cedula,
             status: 1,
         });
-        //respuesta de la creacion de usuario
         res.json({
             msg: 'User ${nombre} ${apellidoPaterno} create success...'
         });
@@ -49,18 +46,22 @@ const registro = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.registro = registro;
-//creamos el login 
+// ✅ LOGIN CORREGIDO
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { correo, contrasena } = req.body;
     const userUnico = yield psicologo_1.Psicologo.findOne({ where: { correo: correo } });
     if (!userUnico) {
-        return res.status(400).json({ msg: 'El usuario NO existe ${correo} ' });
+        return res.status(400).json({ msg: `El usuario NO existe ${correo}` });
     }
     const validarContrasena = yield bcrypt_1.default.compare(contrasena, userUnico.contrasena);
     if (!validarContrasena) {
-        return res.status(400).json({ msg: 'Contraseña Incorrecta => ${contrasena}' });
+        return res.status(400).json({ msg: `Contraseña Incorrecta` });
     }
-    const token = jsonwebtoken_1.default.sign({ correo: correo }, process.env.SECRET_KEY || '1£O1T(GL\fx0', { expiresIn: '1h' });
+    // ✅ INCLUIR ID_PSICOLOGO EN EL TOKEN
+    const token = jsonwebtoken_1.default.sign({
+        correo: correo,
+        id_psicologo: userUnico.id_psicologo // ← AGREGADO
+    }, process.env.SECRET_KEY || '1£O1T(GL\fx0', { expiresIn: '1h' });
     res.json({ token });
 });
 exports.login = login;
