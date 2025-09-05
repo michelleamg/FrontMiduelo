@@ -49,6 +49,9 @@ export class AgendaCitasDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.generarSemana();
     this.generarHoras();
+    // ✅ VERIFICAR QUE TENGAS LOS DATOS NECESARIOS
+  console.log('ID Psicólogo:', this.idPsicologo);
+  console.log('ID Agenda:', this.idAgenda);
     this.cargarPacientes();
     this.cargarCitas();
   }
@@ -97,28 +100,51 @@ cargarPacientes() {
 }
 
   confirmarCrearCita() {
-    if (!this.crearFecha || !this.crearHora || !this.crearPacienteId) {
-      alert('Faltan datos obligatorios.');
-      return;
-    }
-
-    const citaData = {
-      id_agenda: this.idAgenda,
-      id_paciente: this.crearPacienteId,
-      fecha: this.crearFecha,
-      hora_inicio: this.crearHora,
-      duracion: this.crearDuracionMin,
-      modalidad: this.crearModalidad,
-      estado: this.crearEstado,
-      notas: this.crearNotas
-    };
-
-    this.agendaService.crearCita(citaData).subscribe(() => {
-      this.cargarCitas();
-      this.cerrarModal('crearModal');
-    });
+  if (!this.crearFecha || !this.crearHora || !this.crearPacienteId) {
+    alert('Faltan datos obligatorios.');
+    return;
   }
 
+  // ✅ CALCULAR HORA FIN
+  const horaInicio = this.crearHora;
+  const duracion = this.crearDuracionMin || 60;
+  const horaFin = this.calcularHoraFin(horaInicio, duracion);
+
+  const citaData = {
+    id_agenda: this.idAgenda,
+    id_paciente: this.crearPacienteId,
+    fecha: this.crearFecha,
+    hora_inicio: horaInicio,
+    hora_fin: horaFin, // ✅ AGREGADO
+    modalidad: this.crearModalidad,
+    estado: this.crearEstado.toLowerCase(), // ✅ BACKEND espera minúsculas
+    notas: this.crearNotas
+  };
+
+  console.log('Datos de cita a enviar:', citaData); // Para debug
+
+  this.agendaService.crearCita(citaData).subscribe({
+    next: (response) => {
+      console.log('Cita creada exitosamente:', response);
+      this.cargarCitas();
+      this.cerrarModal('crearModal');
+    },
+    error: (error) => {
+      console.error('Error al crear cita:', error);
+      alert('Error al crear la cita: ' + (error.error?.msg || 'Error desconocido'));
+    }
+  });
+}
+
+// ✅ MÉTODO PARA CALCULAR HORA FIN
+private calcularHoraFin(horaInicio: string, duracionMinutos: number): string {
+  const [horas, minutos] = horaInicio.split(':').map(Number);
+  const minutosTotal = horas * 60 + minutos + duracionMinutos;
+  const horasFin = Math.floor(minutosTotal / 60);
+  const minutosFin = minutosTotal % 60;
+  
+  return `${horasFin.toString().padStart(2, '0')}:${minutosFin.toString().padStart(2, '0')}`;
+}
   eliminarCita() {
     if (!this.selecionarEvent) return;
     const idCita = this.selecionarEvent.meta?.id;
