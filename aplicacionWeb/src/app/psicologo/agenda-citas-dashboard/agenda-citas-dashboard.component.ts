@@ -6,6 +6,7 @@ import { PacientesService } from '../../services/pacientes.service';
 import { AgendaService } from '../../services/agenda.service';
 import { es } from 'date-fns/locale';
 import { Evento } from '../../interfaces/evento';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -23,9 +24,6 @@ export class AgendaCitasDashboardComponent implements OnInit {
   selecionarEvent: Evento | null = null;
   rangoSemana = '';
   locale = 'es';
-
-  idPsicologo = 1; // Esto vendría del login
-  idAgenda = 1; // Esto podría venir del backend
   pacientes: any[] = [];
 
   // Reagendar
@@ -44,17 +42,57 @@ export class AgendaCitasDashboardComponent implements OnInit {
   crearEstado: 'Pendiente' | 'Confirmada' | 'Cancelada' = 'Pendiente';
   crearNotas = '';
 
-  constructor(private agendaService: AgendaService, private pacienteService: PacientesService) {}
-
+  constructor(
+  private agendaService: AgendaService, 
+  private pacienteService: PacientesService,
+  private authService: AuthService // Agregar AuthService
+) {}
   ngOnInit(): void {
+    this.obtenerIdPsicologo(); // Nuevo método
     this.generarSemana();
     this.generarHoras();
-    // ✅ VERIFICAR QUE TENGAS LOS DATOS NECESARIOS
-  console.log('ID Psicólogo:', this.idPsicologo);
-  console.log('ID Agenda:', this.idAgenda);
     this.cargarPacientes();
-    this.cargarCitas();
+    this.cargarAgenda(); // Cambiar por cargarAgenda()
   }
+
+  // ✅ NUEVO MÉTODO para obtener ID del psicólogo
+private obtenerIdPsicologo() {
+  const token = this.authService.getToken();
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.idPsicologo = payload.id_psicologo;
+      console.log('ID Psicólogo obtenido:', this.idPsicologo);
+    } catch (error) {
+      console.error('Error al decodificar token:', error);
+    }
+  }
+}
+
+// ✅ NUEVO MÉTODO para cargar/crear agenda
+private async cargarAgenda() {
+  try {
+    // Primero intentar obtener agenda existente
+    const response = await this.agendaService.getAgenda(this.idPsicologo).toPromise();
+    this.idAgenda = response.agenda.id_agenda;
+  } catch (error) {
+    // Si no existe, crear una nueva agenda para la semana actual
+    const inicioSemana = this.diasSemana[0];
+    const finSemana = this.diasSemana[6];
+    
+    const nuevaAgenda = {
+      id_psicologo: this.idPsicologo,
+      semana_inicio: format(inicioSemana, 'yyyy-MM-dd'),
+      semana_fin: format(finSemana, 'yyyy-MM-dd')
+    };
+    
+    const response = await this.agendaService.crearAgenda(nuevaAgenda).toPromise();
+    this.idAgenda = response.agenda.id_agenda;
+  }
+   
+  // Después cargar las citas
+  this.cargarCitas();
+}
 
   cargarCitas() {
   this.agendaService.getCitas(this.idAgenda).subscribe({

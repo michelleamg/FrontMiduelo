@@ -25,9 +25,7 @@ export class AgendaService {
     };
   }
 
-  getAgenda(id_psicologo: number) {
-    return this.http.get(`${this.AppUrl}${this.APIUrl}/agenda/${id_psicologo}`, this.getHeaders());
-  }
+  
 
   getCitas(id_agenda: number): Observable<any[]>  {
     return this.http.get<any[]>(`${this.AppUrl}${this.APIUrl}/citas/${id_agenda}`, this.getHeaders());
@@ -44,5 +42,15 @@ export class AgendaService {
   eliminarCita(id_cita: number) {
     return this.http.delete(`${this.AppUrl}${this.APIUrl}/citas/${id_cita}`, this.getHeaders());
   }
+
+  // ✅ AGREGAR MÉTODO PARA CREAR AGENDA
+crearAgenda(agenda: any) {
+  return this.http.post(`${this.AppUrl}${this.APIUrl}/agenda`, agenda, this.getHeaders());
+}
+
+// ✅ AGREGAR MÉTODO PARA OBTENER AGENDA
+getAgenda(id_psicologo: number) {
+  return this.http.get(`${this.AppUrl}${this.APIUrl}/agenda/${id_psicologo}`, this.getHeaders());
+}
 }
 

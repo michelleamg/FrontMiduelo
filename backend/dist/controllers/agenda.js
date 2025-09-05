@@ -97,40 +97,61 @@ const getCitas = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getCitas = getCitas;
 const crearCita = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id_agenda, id_paciente, fecha, hora_inicio, hora_fin, modalidad, notas } = req.body;
-        if (!id_agenda || !id_paciente || !fecha || !hora_inicio || !hora_fin)
-            return res.status(400).json({ msg: "Faltan campos" });
-        // Validaciones simples (puedes agregar trigger DB ya presente)
-        if (hora_fin <= hora_inicio)
-            return res.status(400).json({ msg: "hora_fin debe ser mayor que hora_inicio" });
-        // Evitar solapamiento para el mismo psicólogo
-        // Obtener id_psicologo desde agenda
+        const { id_agenda, id_paciente, fecha, hora_inicio, hora_fin, modalidad, notas, estado } = req.body;
+        // ✅ VALIDACIÓN MEJORADA
+        if (!id_agenda || !id_paciente || !fecha || !hora_inicio || !hora_fin) {
+            return res.status(400).json({
+                msg: "Faltan campos requeridos",
+                campos_requeridos: ["id_agenda", "id_paciente", "fecha", "hora_inicio", "hora_fin"],
+                datos_recibidos: req.body
+            });
+        }
+        // ✅ VERIFICAR QUE AGENDA EXISTE
         const agenda = yield agenda_1.Agenda.findByPk(id_agenda);
-        if (!agenda)
-            return res.status(400).json({ msg: "Agenda inválida" });
+        if (!agenda) {
+            return res.status(400).json({
+                msg: "Agenda inválida - no existe",
+                id_agenda_buscado: id_agenda
+            });
+        }
+        // ✅ VALIDAR FORMATO DE TIEMPO
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!timeRegex.test(hora_inicio) || !timeRegex.test(hora_fin)) {
+            return res.status(400).json({
+                msg: "Formato de hora inválido. Use HH:mm",
+                hora_inicio_recibida: hora_inicio,
+                hora_fin_recibida: hora_fin
+            });
+        }
+        if (hora_fin <= hora_inicio) {
+            return res.status(400).json({ msg: "hora_fin debe ser mayor que hora_inicio" });
+        }
+        // ✅ VERIFICAR QUE PACIENTE EXISTE
+        const paciente = yield Paciente.findByPk(id_paciente);
+        if (!paciente) {
+            return res.status(400).json({ msg: "Paciente no encontrado" });
+        }
         const id_psicologo = agenda.id_psicologo;
-        const overlap = yield cita_1.Cita.count({
-            where: {
-                fecha,
-                [sequelize_1.Op.and]: [
-                    { id_agenda: { [sequelize_1.Op.in]: (yield agenda_1.Agenda.findAll({ where: { id_psicologo } })).map(a => a.id_agenda) } },
-                    { [sequelize_1.Op.or]: [
-                            { hora_inicio: { [sequelize_1.Op.between]: [hora_inicio, hora_fin] } },
-                            { hora_fin: { [sequelize_1.Op.between]: [hora_inicio, hora_fin] } },
-                            { [sequelize_1.Op.and]: [{ hora_inicio: { [sequelize_1.Op.lte]: hora_inicio } }, { hora_fin: { [sequelize_1.Op.gte]: hora_fin } }] }
-                        ]
-                    }
-                ]
-            }
+        // Crear la cita
+        const nueva = yield cita_1.Cita.create({
+            id_agenda,
+            id_paciente,
+            fecha,
+            hora_inicio,
+            hora_fin,
+            modalidad: modalidad || 'Presencial',
+            estado: estado || 'pendiente',
+            notas
         });
-        if (overlap > 0)
-            return res.status(400).json({ msg: "Ya existe una cita en ese horario" });
-        const nueva = yield cita_1.Cita.create({ id_agenda, id_paciente, fecha, hora_inicio, hora_fin, modalidad, notas });
-        res.json({ msg: "Cita creada", cita: nueva });
+        res.json({ msg: "Cita creada exitosamente", cita: nueva });
     }
     catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: "Error creando cita", error });
+        console.error('Error detallado en crearCita:', error);
+        res.status(500).json({
+            msg: "Error interno del servidor",
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 exports.crearCita = crearCita;
