@@ -41,10 +41,12 @@
 //   res.json({ msg: "Cita eliminada" });
 // };
 // src/controllers/agenda.ts
+// src/controllers/agenda.ts
 import { Request, Response } from "express";
 import { Agenda } from "../models/agenda/agenda";
 import { Cita } from "../models/agenda/cita";
 import { Recordatorio } from "../models/agenda/recordatorio";
+import { Paciente } from "../models/paciente"; // ✅ AGREGAR IMPORT FALTANTE
 import { Op } from "sequelize";
 
 /**
@@ -124,6 +126,7 @@ export const getCitas = async (req: Request, res: Response) => {
     res.status(500).json({ msg: "Error al obtener citas", error });
   }
 };
+
 export const crearCita = async (req: Request, res: Response) => {
   try {
     const { id_agenda, id_paciente, fecha, hora_inicio, hora_fin, modalidad, notas, estado } = req.body;
@@ -181,7 +184,7 @@ export const crearCita = async (req: Request, res: Response) => {
     });
 
     res.json({ msg: "Cita creada exitosamente", cita: nueva });
-  } catch (error) {
+  } catch (error: any) { // ✅ TIPADO CORREGIDO
     console.error('Error detallado en crearCita:', error);
     res.status(500).json({ 
       msg: "Error interno del servidor", 

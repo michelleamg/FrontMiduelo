@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.eliminarCita = exports.actualizarCita = exports.crearCita = exports.getCitas = exports.crearAgenda = exports.getAgenda = void 0;
 const agenda_1 = require("../models/agenda/agenda");
 const cita_1 = require("../models/agenda/cita");
+const paciente_1 = require("../models/paciente"); // ✅ AGREGAR IMPORT FALTANTE
 const sequelize_1 = require("sequelize");
 /**
  * GET /api/agenda/:id_psicologo
@@ -127,7 +128,7 @@ const crearCita = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(400).json({ msg: "hora_fin debe ser mayor que hora_inicio" });
         }
         // ✅ VERIFICAR QUE PACIENTE EXISTE
-        const paciente = yield Paciente.findByPk(id_paciente);
+        const paciente = yield paciente_1.Paciente.findByPk(id_paciente);
         if (!paciente) {
             return res.status(400).json({ msg: "Paciente no encontrado" });
         }
@@ -145,7 +146,7 @@ const crearCita = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         res.json({ msg: "Cita creada exitosamente", cita: nueva });
     }
-    catch (error) {
+    catch (error) { // ✅ TIPADO CORREGIDO
         console.error('Error detallado en crearCita:', error);
         res.status(500).json({
             msg: "Error interno del servidor",
