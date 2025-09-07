@@ -1,4 +1,3 @@
-
 <div class="container my-4">
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -7,7 +6,13 @@
       <button class="btn btn-outline-primary" (click)="anteriorSemana()">&lt;</button>
       <button class="btn btn-outline-primary" (click)="hoy()">Hoy</button>
       <button class="btn btn-outline-primary" (click)="siguienteSemana()">&gt;</button>
-      <button class="btn btn-primary ms-3" (click)="abrirModalCrear()">Crear Cita</button>
+      
+      <!-- ✅ NUEVO: Botón Personalizar Horario -->
+      <button class="btn btn-info ms-3" (click)="abrirModalDisponibilidad()">
+        <i class="bi bi-clock"></i> Personalizar Horario
+      </button>
+      
+      <button class="btn btn-primary ms-2" (click)="abrirModalCrear()">Crear Cita</button>
     </div>
   </div>
 
@@ -38,6 +43,87 @@
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!--  NUEVO: Modal Personalizar Horario -->
+<div class="modal fade" id="disponibilidadModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">Personalizar Horario de Disponibilidad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Disponibilidad Actual -->
+        <h6 class="text-primary mb-3">Horarios Configurados:</h6>
+        <div class="table-responsive mb-4">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Día</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let disp of disponibilidades; let i = index">
+                <td><strong>{{ disp.dia_semana }}</strong></td>
+                <td>{{ disp.hora_inicio }}</td>
+                <td>{{ disp.hora_fin }}</td>
+                <td>
+                  <button class="btn btn-outline-danger btn-sm" 
+                          (click)="eliminarDisponibilidad(i)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="disponibilidades.length === 0" class="text-muted text-center py-3">
+            No hay horarios configurados. Se creará un horario por defecto de 9:00 AM a 6:30 PM.
+          </div>
+        </div>
+
+        <!-- Agregar Nueva Disponibilidad -->
+        <hr>
+        <h6 class="text-success mb-3">Agregar Nuevo Horario:</h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Día de la Semana:</label>
+            <select class="form-select" [(ngModel)]="nuevaDisponibilidad.dia_semana">
+              <option *ngFor="let dia of diasSemanaEnum" [value]="dia">{{ dia }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Hora Inicio:</label>
+            <input type="time" class="form-control" [(ngModel)]="nuevaDisponibilidad.hora_inicio">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Hora Fin:</label>
+            <input type="time" class="form-control" [(ngModel)]="nuevaDisponibilidad.hora_fin">
+          </div>
+        </div>
+
+        <!-- Información de Ayuda -->
+        <div class="alert alert-info mt-3">
+          <small>
+            <strong>💡 Tip:</strong> Puedes agregar múltiples horarios para el mismo día. 
+            Por ejemplo: Lunes 9:00-14:00 y Lunes 15:00-18:00 para tener un descanso de almuerzo.
+          </small>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-success" (click)="agregarDisponibilidad()">
+          Agregar Horario
+        </button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
   </div>
 </div>
 

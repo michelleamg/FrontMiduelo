@@ -4,6 +4,7 @@ import sequelize from '../database/connection'; // Asegúrate de que esta ruta s
 import routerPsico  from '../routes/psicologo'; // Importa el router directamente
 import pacienteRouter  from '../routes/paciente'; // Importa el router directamente
 import agendaRoutes from '../routes/agenda';
+import disponibilidadRoutes from '../routes/disponibilidad';
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
 import { Agenda } from './agenda/agenda';
@@ -46,6 +47,7 @@ class Server {
         this.app.use(routerPsico ); // Usa el router importado
         this.app.use(pacienteRouter ); // Usa el router importado
         this.app.use(agendaRoutes);
+        this.app.use(disponibilidadRoutes);
     }
 
     // Método para iniciar el servidor

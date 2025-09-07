@@ -1,6 +1,6 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, QueryTypes  } from "sequelize";
 
-const sequelize = new Sequelize('miduelo','root', 'ROOT',{
+const sequelize = new Sequelize('miduelo','root', 'root',{
 
     host: 'localhost',
     dialect: "mysql"
