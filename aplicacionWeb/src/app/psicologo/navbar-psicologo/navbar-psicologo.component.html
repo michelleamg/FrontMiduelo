@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <!-- Marca/logo -->
-    <a class="navbar-brand d-flex align-items-center" [routerLink]="['/']">
+    <a class="navbar-brand d-flex align-items-center" [routerLink]="['/agenda']">
       <img [src]="logoPath" alt="MiDuelo" width="45" height="45" class="d-inline-block align-text-top me-0">
       MiDuelo
     </a>
@@ -16,13 +16,13 @@
     <div class="collapse navbar-collapse" id="navbarMenu">
       <ul class="navbar-nav ms-auto"> <!-- ms-auto empuja el menú hacia la derecha -->
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/agenda']">Agenda</a>
+          <a class="nav-link" [routerLink]="['/agenda']"> <i class="bi bi-calendar3"></i> Agenda</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/lista-pacientes-del-psicologo']">Pacientes</a>
+          <a class="nav-link" [routerLink]="['/lista-pacientes-del-psicologo']"><i class="bi bi-people"></i> Pacientes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/chat-pacientes-del-psicologo']">Chat</a>
+          <a class="nav-link" [routerLink]="['/chat-pacientes-del-psicologo']"><i class="bi bi-chat-dots"></i> Chat</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" [routerLink]="['/']">Foros</a>
