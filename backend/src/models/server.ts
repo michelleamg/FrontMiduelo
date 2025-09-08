@@ -1,10 +1,10 @@
-// File: src/models/server.ts
 import express, { Application } from 'express';
 import sequelize from '../database/connection'; // Asegúrate de que esta ruta sea correcta
 import routerPsico  from '../routes/psicologo'; // Importa el router directamente
 import pacienteRouter  from '../routes/paciente'; // Importa el router directamente
 import agendaRoutes from '../routes/agenda';
 import disponibilidadRoutes from '../routes/disponibilidad';
+import chatRoutes from '../routes/chat';
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
 import { Agenda } from './agenda/agenda';
@@ -48,6 +48,7 @@ class Server {
         this.app.use(pacienteRouter ); // Usa el router importado
         this.app.use(agendaRoutes);
         this.app.use(disponibilidadRoutes);
+        this.app.use(chatRoutes);
     }
 
     // Método para iniciar el servidor
