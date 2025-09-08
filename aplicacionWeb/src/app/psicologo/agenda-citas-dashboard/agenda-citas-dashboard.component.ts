@@ -9,7 +9,13 @@ import { Evento } from '../../interfaces/evento';
 import { AuthService } from '../../services/auth.service';
 import {DisponibilidadItem} from '../../interfaces/disponibilidadItem';
 
-
+/// por mejorar 
+  /* 
+    HAY UN DETALLE AL CREAR UNA CITA PARA LA SIGUIENTE SEMANA 
+     ES QUE NO LO GENERA YA QUE LA AGENDA SEMANAL NO ESTA CREADA PERO 
+     AL MODIFICARLA Y CAMBIARLA SI LA GENERA
+     2. AL CREAR LA CITA GENERA  UN DIA ANTES
+  */ 
 @Component({
   selector: 'app-agenda-citas-dashboard',
   imports: [CommonModule, DatePipe, FormsModule],
