@@ -143,17 +143,19 @@ const getMensajes = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getMensajes = getMensajes;
 /**
- * Enviar un nuevo mensaje
+ * Enviar un nuevo mensaje - CORREGIDO
  */
 const enviarMensaje = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const { id_chat, contenido } = req.body;
         const id_psicologo = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id_psicologo;
+        console.log('Datos recibidos:', { id_chat, contenido, id_psicologo });
         if (!id_chat || !contenido || !id_psicologo) {
             return res.status(400).json({
                 msg: "Faltan campos requeridos",
-                campos_requeridos: ["id_chat", "contenido"]
+                campos_requeridos: ["id_chat", "contenido"],
+                datos_recibidos: { id_chat, contenido: !!contenido, id_psicologo }
             });
         }
         if (contenido.trim().length === 0) {
@@ -172,25 +174,45 @@ const enviarMensaje = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (chatExiste[0].count === 0) {
             return res.status(404).json({ msg: "Chat no encontrado o no autorizado" });
         }
-        // Insertar el mensaje
-        const [resultado] = yield connection_1.default.query(`
+        // ✅ CORREGIDO: Insertar el mensaje con parámetros correctos
+        const resultado = yield connection_1.default.query(`
       INSERT INTO mensaje (id_chat, remitente, contenido, fecha_envio, leido) 
-      VALUES (?, 'psicologo', ?, NOW(), 1)
+      VALUES (?, ?, ?, NOW(), 1)
     `, {
-            replacements: [id_chat, contenido.trim()],
+            replacements: [id_chat, 'psicologo', contenido.trim()],
             type: sequelize_1.QueryTypes.INSERT
         });
+        // ✅ CORREGIDO: Obtener el ID del mensaje insertado
+        const insertId = resultado[0].insertId || resultado[0];
+        console.log('Mensaje insertado con ID:', insertId);
         // Obtener el mensaje recién creado
         const nuevoMensaje = yield connection_1.default.query(`
       SELECT id_mensaje, id_chat, remitente, contenido, fecha_envio, leido
       FROM mensaje 
       WHERE id_mensaje = ?
     `, {
-            replacements: [resultado.insertId],
+            replacements: [insertId],
             type: sequelize_1.QueryTypes.SELECT
         });
-        console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
-        res.json(nuevoMensaje[0]);
+        if (nuevoMensaje.length === 0) {
+            // Si no se puede obtener por ID, obtener el último mensaje del chat
+            const ultimoMensaje = yield connection_1.default.query(`
+        SELECT id_mensaje, id_chat, remitente, contenido, fecha_envio, leido
+        FROM mensaje 
+        WHERE id_chat = ? AND remitente = 'psicologo'
+        ORDER BY fecha_envio DESC 
+        LIMIT 1
+      `, {
+                replacements: [id_chat],
+                type: sequelize_1.QueryTypes.SELECT
+            });
+            console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
+            res.json(ultimoMensaje[0]);
+        }
+        else {
+            console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
+            res.json(nuevoMensaje[0]);
+        }
     }
     catch (error) {
         console.error('Error al enviar mensaje:', error);
@@ -209,6 +231,7 @@ const crearChat = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id_paciente } = req.body;
         const id_psicologo = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id_psicologo;
+        console.log('Datos para crear chat:', { id_paciente, id_psicologo });
         if (!id_paciente || !id_psicologo) {
             return res.status(400).json({
                 msg: "Faltan campos requeridos",
@@ -243,13 +266,15 @@ const crearChat = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         // Crear el nuevo chat
-        const [resultado] = yield connection_1.default.query(`
+        const resultado = yield connection_1.default.query(`
       INSERT INTO chat (id_psicologo, id_paciente, fecha_inicio) 
       VALUES (?, ?, NOW())
     `, {
             replacements: [id_psicologo, id_paciente],
             type: sequelize_1.QueryTypes.INSERT
         });
+        // ✅ CORREGIDO: Obtener el ID del chat
+        const insertId = resultado[0].insertId || resultado[0];
         // Obtener el chat recién creado con información del paciente
         const nuevoChat = yield connection_1.default.query(`
       SELECT 
@@ -265,7 +290,7 @@ const crearChat = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
       JOIN paciente p ON p.id_paciente = c.id_paciente
       WHERE c.id_chat = ?
     `, {
-            replacements: [resultado.insertId],
+            replacements: [insertId],
             type: sequelize_1.QueryTypes.SELECT
         });
         const chatFormateado = {

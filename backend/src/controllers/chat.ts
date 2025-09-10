@@ -1,9 +1,9 @@
-
+// backend/src/controllers/chat.ts - VERSIÓN CORREGIDA
 import { Request, Response } from "express";
 import sequelize from "../database/connection";
 import { QueryTypes } from 'sequelize';
 
-//  INTERFACE PARA REQUEST CON USER INFO
+// ✅ INTERFACE PARA REQUEST CON USER INFO
 interface AuthRequest extends Request {
     user?: any;
 }
@@ -142,17 +142,20 @@ export const getMensajes = async (req: AuthRequest, res: Response) => {
 };
 
 /**
- * Enviar un nuevo mensaje
+ * Enviar un nuevo mensaje - CORREGIDO
  */
 export const enviarMensaje = async (req: AuthRequest, res: Response) => {
   try {
     const { id_chat, contenido } = req.body;
     const id_psicologo = req.user?.id_psicologo;
 
+    console.log('Datos recibidos:', { id_chat, contenido, id_psicologo });
+
     if (!id_chat || !contenido || !id_psicologo) {
       return res.status(400).json({ 
         msg: "Faltan campos requeridos",
-        campos_requeridos: ["id_chat", "contenido"]
+        campos_requeridos: ["id_chat", "contenido"],
+        datos_recibidos: { id_chat, contenido: !!contenido, id_psicologo }
       });
     }
 
@@ -176,14 +179,18 @@ export const enviarMensaje = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ msg: "Chat no encontrado o no autorizado" });
     }
 
-    // Insertar el mensaje
-    const [resultado] = await sequelize.query(`
+    // ✅ CORREGIDO: Insertar el mensaje con parámetros correctos
+    const resultado = await sequelize.query(`
       INSERT INTO mensaje (id_chat, remitente, contenido, fecha_envio, leido) 
-      VALUES (?, 'psicologo', ?, NOW(), 1)
+      VALUES (?, ?, ?, NOW(), 1)
     `, {
-      replacements: [id_chat, contenido.trim()],
+      replacements: [id_chat, 'psicologo', contenido.trim()],
       type: QueryTypes.INSERT
     });
+
+    // ✅ CORREGIDO: Obtener el ID del mensaje insertado
+    const insertId = (resultado[0] as any).insertId || resultado[0];
+    console.log('Mensaje insertado con ID:', insertId);
 
     // Obtener el mensaje recién creado
     const nuevoMensaje = await sequelize.query(`
@@ -191,12 +198,29 @@ export const enviarMensaje = async (req: AuthRequest, res: Response) => {
       FROM mensaje 
       WHERE id_mensaje = ?
     `, {
-      replacements: [(resultado as any).insertId],
+      replacements: [insertId],
       type: QueryTypes.SELECT
     });
 
-    console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
-    res.json(nuevoMensaje[0]);
+    if (nuevoMensaje.length === 0) {
+      // Si no se puede obtener por ID, obtener el último mensaje del chat
+      const ultimoMensaje = await sequelize.query(`
+        SELECT id_mensaje, id_chat, remitente, contenido, fecha_envio, leido
+        FROM mensaje 
+        WHERE id_chat = ? AND remitente = 'psicologo'
+        ORDER BY fecha_envio DESC 
+        LIMIT 1
+      `, {
+        replacements: [id_chat],
+        type: QueryTypes.SELECT
+      });
+
+      console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
+      res.json(ultimoMensaje[0]);
+    } else {
+      console.log(`Mensaje enviado en chat ${id_chat} por psicólogo ${id_psicologo}`);
+      res.json(nuevoMensaje[0]);
+    }
 
   } catch (error: any) {
     console.error('Error al enviar mensaje:', error);
@@ -214,6 +238,8 @@ export const crearChat = async (req: AuthRequest, res: Response) => {
   try {
     const { id_paciente } = req.body;
     const id_psicologo = req.user?.id_psicologo;
+
+    console.log('Datos para crear chat:', { id_paciente, id_psicologo });
 
     if (!id_paciente || !id_psicologo) {
       return res.status(400).json({ 
@@ -254,13 +280,16 @@ export const crearChat = async (req: AuthRequest, res: Response) => {
     }
 
     // Crear el nuevo chat
-    const [resultado] = await sequelize.query(`
+    const resultado = await sequelize.query(`
       INSERT INTO chat (id_psicologo, id_paciente, fecha_inicio) 
       VALUES (?, ?, NOW())
     `, {
       replacements: [id_psicologo, id_paciente],
       type: QueryTypes.INSERT
     });
+
+    // ✅ CORREGIDO: Obtener el ID del chat
+    const insertId = (resultado[0] as any).insertId || resultado[0];
 
     // Obtener el chat recién creado con información del paciente
     const nuevoChat = await sequelize.query(`
@@ -277,7 +306,7 @@ export const crearChat = async (req: AuthRequest, res: Response) => {
       JOIN paciente p ON p.id_paciente = c.id_paciente
       WHERE c.id_chat = ?
     `, {
-      replacements: [(resultado as any).insertId],
+      replacements: [insertId],
       type: QueryTypes.SELECT
     });
 
