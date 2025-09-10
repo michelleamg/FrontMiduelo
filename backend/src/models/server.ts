@@ -1,10 +1,11 @@
+// backend/src/models/server.ts
 import express, { Application } from 'express';
-import sequelize from '../database/connection'; // Asegúrate de que esta ruta sea correcta
-import routerPsico  from '../routes/psicologo'; // Importa el router directamente
-import pacienteRouter  from '../routes/paciente'; // Importa el router directamente
+import sequelize from '../database/connection';
+import routerPsico  from '../routes/psicologo';
+import pacienteRouter  from '../routes/paciente';
 import agendaRoutes from '../routes/agenda';
 import disponibilidadRoutes from '../routes/disponibilidad';
-import chatRoutes from '../routes/chat';
+import chatRoutes from '../routes/chat'; // ← AGREGAR IMPORT
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
 import { Agenda } from './agenda/agenda';
@@ -22,14 +23,14 @@ class Server {
         this.app = express();
         this.port = process.env.PORT || '3016';
 
-        // 1. Conectar a la base de datos (puede ser asíncrono)
+        // 1. Conectar a la base de datos
         this.connetionBaseDatos();
 
-        // 2. Configurar middlewares (¡ANTES DE LAS RUTAS!)
+        // 2. Configurar middlewares
         this.midlewares();
 
         // 3. Configurar las rutas
-        this.routes(); // Renombrado a 'routes' para mayor claridad
+        this.routes();
 
         // 4. Iniciar el servidor
         this.listen();
@@ -37,18 +38,17 @@ class Server {
 
     // Método para configurar middlewares
     private midlewares() {
-        this.app.use(express.json()); // Middleware para parsear JSON en el cuerpo de las solicitudes
-        // Puedes añadir otros middlewares aquí, como CORS, etc.
+        this.app.use(express.json());
         this.app.use(cors());
     }
 
     // Método para configurar las rutas
     private routes() {
-        this.app.use(routerPsico ); // Usa el router importado
-        this.app.use(pacienteRouter ); // Usa el router importado
+        this.app.use(routerPsico);
+        this.app.use(pacienteRouter);
         this.app.use(agendaRoutes);
         this.app.use(disponibilidadRoutes);
-        this.app.use(chatRoutes);
+        this.app.use(chatRoutes); // ← AGREGAR ESTA LÍNEA
     }
 
     // Método para iniciar el servidor
@@ -61,10 +61,6 @@ class Server {
     // Método para conectar a la base de datos
     private async connetionBaseDatos() {
         try {
-            // await sequelize.authenticate(); // Descomenta si quieres probar la conexión
-            //await Psicologo.sync({ force: false }); // ¡CUIDADO! 'force: true' borra y recrea la tabla en cada inicio.
-                                              // Para desarrollo, 'force: true' puede ser útil, pero en producción
-                                              // o si ya tienes datos, usa 'force: false' o migraciones.
             await Psicologo.sync({ alter: true })
                 .then(() => console.log("Tablas actualizadas"))
                 .catch(err => console.error("Error al sincronizar", err));
@@ -76,54 +72,55 @@ class Server {
             await Recordatorio.sync({ alter: true });
             console.log('Conexión a la base de datos exitosa.');
             console.log('Tablas sincronizadas correctamente.');
-        // Programar cron: revisar citas para mañana a las 00:05
-      cron.schedule('5 0 * * *', async () => {
-        try {
-          const mañana = new Date();
-          mañana.setDate(mañana.getDate() + 1);
-          const fechaManana = mañana.toISOString().slice(0,10);
 
-          // buscar citas pendientes para mañana
-          const citas = await Cita.findAll({
-            where: {
-              fecha: fechaManana,
-              estado: { [Op.in]: ["pendiente","confirmada"] }
-            },
-            include: [{ model: Agenda }] // para obtener id_psicologo
-          });
+            // Programar cron: revisar citas para mañana a las 00:05
+            cron.schedule('5 0 * * *', async () => {
+                try {
+                    const mañana = new Date();
+                    mañana.setDate(mañana.getDate() + 1);
+                    const fechaManana = mañana.toISOString().slice(0,10);
 
-          for (const cita of citas) {
-            const id_cita = (cita as any).id_cita;
-            const id_agenda = (cita as any).id_agenda;
-            const agenda = await Agenda.findByPk(id_agenda);
-            const id_psicologo = (agenda as any).id_psicologo;
-            const id_paciente = (cita as any).id_paciente;
+                    // buscar citas pendientes para mañana
+                    const citas = await Cita.findAll({
+                        where: {
+                            fecha: fechaManana,
+                            estado: { [Op.in]: ["pendiente","confirmada"] }
+                        },
+                        include: [{ model: Agenda }] // para obtener id_psicologo
+                    });
 
-            const mensaje = `Recordatorio: Tienes cita el ${fechaManana} de ${(cita as any).hora_inicio} a ${(cita as any).hora_fin}`;
+                    for (const cita of citas) {
+                        const id_cita = (cita as any).id_cita;
+                        const id_agenda = (cita as any).id_agenda;
+                        const agenda = await Agenda.findByPk(id_agenda);
+                        const id_psicologo = (agenda as any).id_psicologo;
+                        const id_paciente = (cita as any).id_paciente;
 
-            await Recordatorio.create({
-              id_cita,
-              id_psicologo,
-              id_paciente,
-              mensaje,
-              fecha_programada: new Date() // ahora, o ajusta horario de envío
+                        const mensaje = `Recordatorio: Tienes cita el ${fechaManana} de ${(cita as any).hora_inicio} a ${(cita as any).hora_fin}`;
+
+                        await Recordatorio.create({
+                            id_cita,
+                            id_psicologo,
+                            id_paciente,
+                            mensaje,
+                            fecha_programada: new Date() // ahora, o ajusta horario de envío
+                        });
+
+                        console.log("Recordatorio creado para cita:", id_cita, mensaje);
+                        // Aquí podrías invocar un servicio de email/push
+                    }
+                } catch (err) {
+                    console.error("Error en cron de recordatorios:", err);
+                }
+            }, {
+                timezone: 'America/Mexico_City'
             });
 
-            console.log("Recordatorio creado para cita:", id_cita, mensaje);
-            // Aquí podrías invocar un servicio de email/push
-          }
-        } catch (err) {
-          console.error("Error en cron de recordatorios:", err);
+            console.log('Cron de recordatorios programado.');
+        } catch (error) {
+            console.error('Error al sincronizar DB:', error);
         }
-      }, {
-        timezone: 'America/Mexico_City'
-      });
-
-      console.log('Cron de recordatorios programado.');
-    } catch (error) {
-      console.error('Error al sincronizar DB:', error);
     }
-  }
 }
 
 export default Server;

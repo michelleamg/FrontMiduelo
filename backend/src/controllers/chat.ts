@@ -1,9 +1,9 @@
-// backend/src/controllers/chat.ts
+
 import { Request, Response } from "express";
 import sequelize from "../database/connection";
 import { QueryTypes } from 'sequelize';
 
-// ✅ INTERFACE PARA REQUEST CON USER INFO
+//  INTERFACE PARA REQUEST CON USER INFO
 interface AuthRequest extends Request {
     user?: any;
 }
@@ -20,6 +20,8 @@ export const getChats = async (req: AuthRequest, res: Response) => {
         msg: 'No se pudo identificar al psicólogo'
       });
     }
+
+    console.log(`Buscando chats para psicólogo ID: ${id_psicologo}`);
 
     const chats = await sequelize.query(`
       SELECT 
@@ -84,6 +86,7 @@ export const getChats = async (req: AuthRequest, res: Response) => {
       mensajes_no_leidos: chat.mensajes_no_leidos || 0
     }));
 
+    console.log(`Encontrados ${chatsFormateados.length} chats`);
     res.json(chatsFormateados);
   } catch (error) {
     console.error('Error al obtener chats:', error);
