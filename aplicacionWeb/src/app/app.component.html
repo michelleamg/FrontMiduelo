@@ -1,4 +1,4 @@
-@if (isAuthenticated()) {
+<!-- @if (isAuthenticated()) {
     <app-navbar-psicologo></app-navbar-psicologo>
    <router-outlet></router-outlet>
    <app-footer></app-footer>
@@ -8,8 +8,23 @@
    <router-outlet></router-outlet>
    <app-footer></app-footer>
 }
+ -->
 
-
+ @if (isAuthenticated() && isAdmin()) {
+    <app-navbar-admin></app-navbar-admin>
+   <router-outlet></router-outlet>
+   <app-footer></app-footer>
+}
+@else if (isAuthenticated() && !isAdmin()) {
+    <app-navbar-psicologo></app-navbar-psicologo>
+   <router-outlet></router-outlet>
+   <app-footer></app-footer>
+}
+@else {
+    <app-nav-bar ></app-nav-bar>
+   <router-outlet></router-outlet>
+   <app-footer></app-footer>
+}
 
 
 

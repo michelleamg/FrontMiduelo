@@ -18,7 +18,8 @@ const psicologo_1 = __importDefault(require("../routes/psicologo"));
 const paciente_1 = __importDefault(require("../routes/paciente"));
 const agenda_1 = __importDefault(require("../routes/agenda"));
 const disponibilidad_1 = __importDefault(require("../routes/disponibilidad"));
-const chat_1 = __importDefault(require("../routes/chat")); // ← AGREGAR IMPORT
+const chat_1 = __importDefault(require("../routes/chat"));
+const admin_1 = __importDefault(require("../routes/admin"));
 const psicologo_2 = require("./psicologo");
 const paciente_2 = require("./paciente");
 const agenda_2 = require("./agenda/agenda");
@@ -51,7 +52,8 @@ class Server {
         this.app.use(paciente_1.default);
         this.app.use(agenda_1.default);
         this.app.use(disponibilidad_1.default);
-        this.app.use(chat_1.default); // ← AGREGAR ESTA LÍNEA
+        this.app.use(chat_1.default);
+        this.app.use(admin_1.default);
     }
     // Método para iniciar el servidor
     listen() {

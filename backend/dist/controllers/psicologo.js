@@ -46,22 +46,63 @@ const registro = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.registro = registro;
-// ✅ LOGIN CORREGIDO
+// // LOGIN CORREGIDO
+// export const login = async(req: Request, res: Response) => {
+//     const {correo, contrasena} = req.body;
+//     const userUnico: any = await Psicologo.findOne({where: {correo: correo}});
+//     if(!userUnico){
+//          return res.status(400).json(
+//              {msg: `El usuario NO existe ${correo}`}
+//         )
+//     }
+//     const validarContrasena = await bcrypt.compare(contrasena, userUnico.contrasena);
+//     if(!validarContrasena){
+//         return res.status(400).json(
+//              {msg: `Contraseña Incorrecta`}
+//         )
+//     }
+//     //INCLUIR ID_PSICOLOGO EN EL TOKEN
+//     const token = jwt.sign({
+//         correo: correo,
+//         id_psicologo: userUnico.id_psicologo  // ← AGREGADO
+//     }, process.env.SECRET_KEY || '1£O1T(GL\fx0', { expiresIn: '1h' });
+//     res.json({token});
+// }
+// LOGIN CORREGIDO CON DETECCIÓN DE ROL
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { correo, contrasena } = req.body;
     const userUnico = yield psicologo_1.Psicologo.findOne({ where: { correo: correo } });
     if (!userUnico) {
         return res.status(400).json({ msg: `El usuario NO existe ${correo}` });
     }
+    // VERIFICAR QUE LA CUENTA ESTÉ ACTIVA
+    // if(userUnico.status !== 'activo'){
+    //     return res.status(403).json(
+    //          {msg: `Cuenta inactiva. Contacte al administrador.`}
+    //     )
+    // }
     const validarContrasena = yield bcrypt_1.default.compare(contrasena, userUnico.contrasena);
     if (!validarContrasena) {
         return res.status(400).json({ msg: `Contraseña Incorrecta` });
     }
-    // ✅ INCLUIR ID_PSICOLOGO EN EL TOKEN
+    // INCLUIR INFORMACIÓN COMPLETA EN EL TOKEN
     const token = jsonwebtoken_1.default.sign({
         correo: correo,
-        id_psicologo: userUnico.id_psicologo // ← AGREGADO
-    }, process.env.SECRET_KEY || '1£O1T(GL\fx0', { expiresIn: '1h' });
-    res.json({ token });
+        id_psicologo: userUnico.id_psicologo,
+        rol_admin: userUnico.rol_admin, // ← AGREGADO PARA DISTINGUIR ADMIN
+        nombre: userUnico.nombre,
+        apellido: userUnico.apellidoPaterno
+    }, process.env.SECRET_KEY || '1£O1T(GL\fx0', { expiresIn: '8h' });
+    res.json({
+        token,
+        usuario: {
+            id: userUnico.id_psicologo,
+            nombre: userUnico.nombre,
+            correo: userUnico.correo,
+            rol_admin: userUnico.rol_admin,
+            cedula_validada: userUnico.cedula_validada,
+            status: userUnico.status
+        }
+    });
 });
 exports.login = login;

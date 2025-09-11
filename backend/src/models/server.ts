@@ -5,7 +5,8 @@ import routerPsico  from '../routes/psicologo';
 import pacienteRouter  from '../routes/paciente';
 import agendaRoutes from '../routes/agenda';
 import disponibilidadRoutes from '../routes/disponibilidad';
-import chatRoutes from '../routes/chat'; // ← AGREGAR IMPORT
+import chatRoutes from '../routes/chat'; 
+import adminRoutes from '../routes/admin';
 import { Psicologo } from './psicologo';
 import { Paciente } from './paciente';
 import { Agenda } from './agenda/agenda';
@@ -48,7 +49,8 @@ class Server {
         this.app.use(pacienteRouter);
         this.app.use(agendaRoutes);
         this.app.use(disponibilidadRoutes);
-        this.app.use(chatRoutes); // ← AGREGAR ESTA LÍNEA
+        this.app.use(chatRoutes); 
+        this.app.use(adminRoutes); 
     }
 
     // Método para iniciar el servidor
