@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { PsicologoAdmin } from '../interfaces/psicologoAdmin';
+import { ValidacionCedulaResponse  } from '../interfaces/validacionCedulaResponse';
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +35,13 @@ export class AdminService {
     return this.http.get(`${this.AppUrl}${this.APIUrl}/psicologos`);
   }
 
+   /**
+   * Obtener un psicólogo específico por ID
+   */
+  getPsicologoById(id: number): Observable<PsicologoAdmin> {
+    return this.http.get<PsicologoAdmin>(`${this.AppUrl}${this.APIUrl}/psicologos/${id}`);
+  }
+
   /**
    * Obtener todos los pacientes
    */
@@ -46,12 +58,22 @@ export class AdminService {
     });
   }
 
+   /**
+   * Validar cédula profesional con API de SEP
+   */
+  validarCedulaProfesional(idPsicologo: number, cedula: string): Observable<ValidacionCedulaResponse> {
+    return this.http.post<ValidacionCedulaResponse>(`${this.AppUrl}${this.APIUrl}/validar-cedula`, {
+      id_psicologo: idPsicologo,
+      cedula: cedula
+    });
+  }
+
   /**
    * Cambiar status de un psicólogo (activo/inactivo)
    */
-  cambiarStatusPsicologo(idPsicologo: number, status: 'activo' | 'inactivo'): Observable<any> {
-    return this.http.put(`${this.AppUrl}${this.APIUrl}/psicologos/${idPsicologo}/status`, {
-      status
+  cambiarEstadoPsicologo(idPsicologo: number, nuevoEstado: 'activo' | 'inactivo'): Observable<any> {
+    return this.http.put(`${this.AppUrl}${this.APIUrl}/psicologos/${idPsicologo}/estado`, {
+      status: nuevoEstado
     });
   }
 
@@ -62,38 +84,7 @@ export class AdminService {
     return this.http.delete(`${this.AppUrl}${this.APIUrl}/psicologos/${idPsicologo}`);
   }
 
-  /**
-   * Verificar cédula profesional con API externa (SEP)
-   * Nota: Aquí implementarías la integración con APIs reales
-   */
-  verificarCedulaSEP(cedula: string): Observable<any> {
-    // Por ahora simulamos la verificación
-    // En producción conectarías con APIs como:
-    // - API de la SEP (si existe)
-    // - RENAPO
-    // - Otros servicios gubernamentales
-    
-    return new Observable(observer => {
-      setTimeout(() => {
-        // Simulación de respuesta
-        const esValida = cedula.length >= 6 && /^[A-Z0-9]+$/.test(cedula);
-        observer.next({
-          valida: esValida,
-          mensaje: esValida ? 'Cédula válida' : 'Cédula no válida',
-          detalles: esValida ? {
-            nombre: 'Nombre del profesional',
-            institucion: 'Universidad XYZ',
-            fechaExpedicion: '2020-01-01'
-          } : null
-        });
-        observer.complete();
-      }, 2000); // Simular delay de API
-    });
-  }
-
-  /**
-   * Registrar administrador (solo para setup inicial)
-   */
+  
   registrarAdmin(datosAdmin: any): Observable<any> {
     return this.http.post(`${this.AppUrl}api/psicologo/registro-admin`, datosAdmin);
   }
@@ -117,6 +108,40 @@ export class AdminService {
         });
         observer.complete();
       }, 1000);
+    });
+  }
+  /**
+   * Actualizar perfil de administrador
+   */
+  actualizarPerfilAdmin(datos: any): Observable<any> {
+    return this.http.put(`${this.AppUrl}${this.APIUrl}/perfil`, datos);
+  }
+
+  /**
+   * Cambiar contraseña de administrador
+   */
+  cambiarContrasenaAdmin(contrasenaActual: string, nuevaContrasena: string): Observable<any> {
+    return this.http.put(`${this.AppUrl}${this.APIUrl}/cambiar-contrasena`, {
+      contrasena_actual: contrasenaActual,
+      nueva_contrasena: nuevaContrasena
+    });
+  }
+
+  /**
+   * Solicitar cambio de correo (envía email de confirmación)
+   */
+  solicitarCambioCorreo(nuevoCorreo: string): Observable<any> {
+    return this.http.post(`${this.AppUrl}${this.APIUrl}/solicitar-cambio-correo`, {
+      nuevo_correo: nuevoCorreo
+    });
+  }
+
+  /**
+   * Confirmar cambio de correo con token
+   */
+  confirmarCambioCorreo(token: string): Observable<any> {
+    return this.http.post(`${this.AppUrl}${this.APIUrl}/confirmar-cambio-correo`, {
+      token: token
     });
   }
 }
