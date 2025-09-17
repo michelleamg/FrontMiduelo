@@ -103,6 +103,70 @@ export class PsicologosAdminComponent implements OnInit {
     }
   }
 
+  ///----------------------
+  // Método para validar cédula con API
+validarCedulaConAPI(psicologo: any) {
+  const url = `${this.apiUrl}/api/admin/psicologos/${psicologo.id_psicologo}/validar-cedula-api`;
+  
+  this.http.post(url, {}).subscribe({
+    next: (response: any) => {
+      if (response.validacion.valida) {
+        alert(`✅ Cédula validada: ${response.msg}`);
+        this.cargarPsicologos(); // Recargar lista
+      } else {
+        const confirmar = confirm(
+          `❌ No se pudo validar automáticamente.\n\n` +
+          `¿Desea validar manualmente después de revisar en el sitio oficial?\n\n` +
+          `Se abrirá la página de consulta de la SEP.`
+        );
+        
+        if (confirmar) {
+          // Abrir página oficial
+          window.open(response.urlConsultaManual, '_blank');
+          
+          // Preguntar si validar manualmente
+          setTimeout(() => {
+            const validarManual = confirm('¿Confirma que la cédula es válida según la consulta oficial?');
+            if (validarManual) {
+              this.validarCedulaManual(psicologo);
+            }
+          }, 2000);
+        }
+      }
+    },
+    error: (error) => {
+      console.error('Error:', error);
+      alert('Error al validar cédula: ' + error.error?.msg);
+    }
+  });
+}
+
+// Método para validación manual (forzada)
+validarCedulaManual(psicologo: any) {
+  const url = `${this.apiUrl}/api/admin/psicologos/${psicologo.id_psicologo}/validar-cedula-api`;
+  
+  this.http.post(url, { forzarValidacion: true }).subscribe({
+    next: (response: any) => {
+      alert(`✅ ${response.msg}`);
+      this.cargarPsicologos();
+    },
+    error: (error) => {
+      console.error('Error:', error);
+      alert('Error: ' + error.error?.msg);
+    }
+  });
+}
+
+// Método para abrir consulta oficial
+abrirConsultaOficial() {
+  const url = 'https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action';
+  window.open(url, '_blank');
+}
+
+
+
+  //------------------------------------------------------
+
   cambiarEstadoCuenta(psicologo: PsicologoAdmin, nuevoEstado: 'activo' | 'inactivo') {
     const accion = nuevoEstado === 'activo' ? 'habilitar' : 'inhabilitar';
     

@@ -5,6 +5,7 @@ import { Psicologo } from '../models/psicologo';
 import { Paciente } from '../models/paciente';
 import { Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
+import { CedulaValidacionService } from '../services/cedulaValidacion.services';
 
 // INTERFACE PARA REQUEST CON USER INFO
 interface AuthRequest extends Request {
@@ -192,38 +193,38 @@ export const getAllPacientes = async (req: AuthRequest, res: Response) => {
 /**
  * Validar cédula profesional de un psicólogo
  */
-export const validarCedula = async (req: AuthRequest, res: Response) => {
-    try {
-        const { id_psicologo } = req.params;
-        const { cedula_validada } = req.body;
+// export const validarCedula = async (req: AuthRequest, res: Response) => {
+//     try {
+//         const { id_psicologo } = req.params;
+//         const { cedula_validada } = req.body;
 
-        const psicologo = await Psicologo.findByPk(id_psicologo);
+//         const psicologo = await Psicologo.findByPk(id_psicologo);
 
-        if (!psicologo) {
-            return res.status(404).json({
-                msg: 'Psicólogo no encontrado'
-            });
-        }
+//         if (!psicologo) {
+//             return res.status(404).json({
+//                 msg: 'Psicólogo no encontrado'
+//             });
+//         }
 
-        await psicologo.update({ cedula_validada: !!cedula_validada });
+//         await psicologo.update({ cedula_validada: !!cedula_validada });
 
-        res.json({
-            msg: `Cédula ${cedula_validada ? 'validada' : 'invalidada'} exitosamente`,
-            psicologo: {
-                id: (psicologo as any).id_psicologo,
-                nombre: (psicologo as any).nombre,
-                cedula: (psicologo as any).cedula,
-                cedula_validada: !!cedula_validada
-            }
-        });
+//         res.json({
+//             msg: `Cédula ${cedula_validada ? 'validada' : 'invalidada'} exitosamente`,
+//             psicologo: {
+//                 id: (psicologo as any).id_psicologo,
+//                 nombre: (psicologo as any).nombre,
+//                 cedula: (psicologo as any).cedula,
+//                 cedula_validada: !!cedula_validada
+//             }
+//         });
 
-    } catch (error) {
-        console.error('Error validando cédula:', error);
-        res.status(500).json({
-            msg: 'Error interno del servidor'
-        });
-    }
-};
+//     } catch (error) {
+//         console.error('Error validando cédula:', error);
+//         res.status(500).json({
+//             msg: 'Error interno del servidor'
+//         });
+//     }
+// };
 
 /**
  * Cambiar status de un psicólogo (activo/inactivo)
@@ -312,4 +313,80 @@ export const eliminarPsicologo = async (req: AuthRequest, res: Response) => {
             msg: 'Error interno del servidor'
         });
     }
+};
+
+/**
+ * Validar cédula profesional usando servicio externo
+ */
+export const validarCedulaConAPI = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id_psicologo } = req.params;
+    const { forzarValidacion = false } = req.body;
+
+    const psicologo = await Psicologo.findByPk(id_psicologo);
+
+    if (!psicologo) {
+      return res.status(404).json({
+        msg: 'Psicólogo no encontrado'
+      });
+    }
+
+    const psicologoData = psicologo as any;
+    const nombreCompleto = `${psicologoData.nombre} ${psicologoData.apellidoPaterno} ${psicologoData.apellidoMaterno || ''}`;
+
+    // Validar con API
+    const resultadoValidacion = await CedulaValidacionService.validarCedula(
+      psicologoData.cedula,
+      nombreCompleto,
+      psicologoData.apellidoPaterno
+    );
+
+    // Si hay error en la API pero se fuerza la validación
+    if (!resultadoValidacion.valida && forzarValidacion) {
+      await psicologo.update({ 
+        cedula_validada: true 
+      });
+
+      return res.json({
+        msg: 'Cédula validada manualmente por el administrador',
+        validacion: {
+          valida: true,
+          metodo: 'manual',
+          administrador: req.user?.nombre
+        },
+        psicologo: {
+          id: psicologoData.id_psicologo,
+          nombre: nombreCompleto,
+          cedula: psicologoData.cedula,
+          cedula_validada: true
+        }
+      });
+    }
+
+    // Actualizar estado basado en validación
+    if (resultadoValidacion.valida) {
+      await psicologo.update({ 
+        cedula_validada: true 
+      });
+    }
+
+    res.json({
+      msg: resultadoValidacion.valida ? 'Cédula validada exitosamente' : 'Cédula no pudo ser validada',
+      validacion: resultadoValidacion,
+      urlConsultaManual: CedulaValidacionService.getUrlConsultaOficial(),
+      psicologo: {
+        id: psicologoData.id_psicologo,
+        nombre: nombreCompleto,
+        cedula: psicologoData.cedula,
+        cedula_validada: resultadoValidacion.valida
+      }
+    });
+
+  } catch (error) {
+    console.error('Error validando cédula:', error);
+    res.status(500).json({
+      msg: 'Error interno del servidor',
+      error: error.message
+    });
+  }
 };

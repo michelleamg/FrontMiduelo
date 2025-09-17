@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.eliminarPsicologo = exports.cambiarStatusPsicologo = exports.validarCedula = exports.getAllPacientes = exports.getAllPsicologos = exports.verificarAdmin = exports.registroAdmin = void 0;
+exports.validarCedulaConAPI = exports.eliminarPsicologo = exports.cambiarStatusPsicologo = exports.getAllPacientes = exports.getAllPsicologos = exports.verificarAdmin = exports.registroAdmin = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const psicologo_1 = require("../models/psicologo");
 const paciente_1 = require("../models/paciente");
 const sequelize_1 = require("sequelize");
+const cedulaValidacion_services_1 = require("../services/cedulaValidacion.services");
 /**
  * Registro especial para administradores (solo para pruebas/setup inicial)
  */
@@ -179,35 +180,33 @@ exports.getAllPacientes = getAllPacientes;
 /**
  * Validar cédula profesional de un psicólogo
  */
-const validarCedula = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id_psicologo } = req.params;
-        const { cedula_validada } = req.body;
-        const psicologo = yield psicologo_1.Psicologo.findByPk(id_psicologo);
-        if (!psicologo) {
-            return res.status(404).json({
-                msg: 'Psicólogo no encontrado'
-            });
-        }
-        yield psicologo.update({ cedula_validada: !!cedula_validada });
-        res.json({
-            msg: `Cédula ${cedula_validada ? 'validada' : 'invalidada'} exitosamente`,
-            psicologo: {
-                id: psicologo.id_psicologo,
-                nombre: psicologo.nombre,
-                cedula: psicologo.cedula,
-                cedula_validada: !!cedula_validada
-            }
-        });
-    }
-    catch (error) {
-        console.error('Error validando cédula:', error);
-        res.status(500).json({
-            msg: 'Error interno del servidor'
-        });
-    }
-});
-exports.validarCedula = validarCedula;
+// export const validarCedula = async (req: AuthRequest, res: Response) => {
+//     try {
+//         const { id_psicologo } = req.params;
+//         const { cedula_validada } = req.body;
+//         const psicologo = await Psicologo.findByPk(id_psicologo);
+//         if (!psicologo) {
+//             return res.status(404).json({
+//                 msg: 'Psicólogo no encontrado'
+//             });
+//         }
+//         await psicologo.update({ cedula_validada: !!cedula_validada });
+//         res.json({
+//             msg: `Cédula ${cedula_validada ? 'validada' : 'invalidada'} exitosamente`,
+//             psicologo: {
+//                 id: (psicologo as any).id_psicologo,
+//                 nombre: (psicologo as any).nombre,
+//                 cedula: (psicologo as any).cedula,
+//                 cedula_validada: !!cedula_validada
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Error validando cédula:', error);
+//         res.status(500).json({
+//             msg: 'Error interno del servidor'
+//         });
+//     }
+// };
 /**
  * Cambiar status de un psicólogo (activo/inactivo)
  */
@@ -288,3 +287,68 @@ const eliminarPsicologo = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.eliminarPsicologo = eliminarPsicologo;
+/**
+ * Validar cédula profesional usando servicio externo
+ */
+const validarCedulaConAPI = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { id_psicologo } = req.params;
+        const { forzarValidacion = false } = req.body;
+        const psicologo = yield psicologo_1.Psicologo.findByPk(id_psicologo);
+        if (!psicologo) {
+            return res.status(404).json({
+                msg: 'Psicólogo no encontrado'
+            });
+        }
+        const psicologoData = psicologo;
+        const nombreCompleto = `${psicologoData.nombre} ${psicologoData.apellidoPaterno} ${psicologoData.apellidoMaterno || ''}`;
+        // Validar con API
+        const resultadoValidacion = yield cedulaValidacion_services_1.CedulaValidacionService.validarCedula(psicologoData.cedula, nombreCompleto, psicologoData.apellidoPaterno);
+        // Si hay error en la API pero se fuerza la validación
+        if (!resultadoValidacion.valida && forzarValidacion) {
+            yield psicologo.update({
+                cedula_validada: true
+            });
+            return res.json({
+                msg: 'Cédula validada manualmente por el administrador',
+                validacion: {
+                    valida: true,
+                    metodo: 'manual',
+                    administrador: (_a = req.user) === null || _a === void 0 ? void 0 : _a.nombre
+                },
+                psicologo: {
+                    id: psicologoData.id_psicologo,
+                    nombre: nombreCompleto,
+                    cedula: psicologoData.cedula,
+                    cedula_validada: true
+                }
+            });
+        }
+        // Actualizar estado basado en validación
+        if (resultadoValidacion.valida) {
+            yield psicologo.update({
+                cedula_validada: true
+            });
+        }
+        res.json({
+            msg: resultadoValidacion.valida ? 'Cédula validada exitosamente' : 'Cédula no pudo ser validada',
+            validacion: resultadoValidacion,
+            urlConsultaManual: cedulaValidacion_services_1.CedulaValidacionService.getUrlConsultaOficial(),
+            psicologo: {
+                id: psicologoData.id_psicologo,
+                nombre: nombreCompleto,
+                cedula: psicologoData.cedula,
+                cedula_validada: resultadoValidacion.valida
+            }
+        });
+    }
+    catch (error) {
+        console.error('Error validando cédula:', error);
+        res.status(500).json({
+            msg: 'Error interno del servidor',
+            error: error.message
+        });
+    }
+});
+exports.validarCedulaConAPI = validarCedulaConAPI;

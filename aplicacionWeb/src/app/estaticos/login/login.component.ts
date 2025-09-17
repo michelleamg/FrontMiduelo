@@ -52,7 +52,12 @@ export class LoginComponent {
         console.log(token);
         this.loading= false
         this.toastr.success("", "Bienvenido");
-        this.router.navigate(['/agenda']);
+        // this.router.navigate(['/agenda']);
+        if (response.usuario.rol_admin) {
+          this.router.navigate(['/admin/psicologos']); // 👈 CAMBIO AQUÍ
+        } else {
+          this.router.navigate(['/psicologo/agenda']);
+        }
         
       }, error: (event: HttpErrorResponse) =>{
         this.loading = false;

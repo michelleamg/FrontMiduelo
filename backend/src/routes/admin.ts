@@ -1,7 +1,8 @@
 // backend/src/routes/admin.ts
 import { Router } from "express";
 import { registroAdmin, verificarAdmin, getAllPsicologos,
-        getAllPacientes,    validarCedula,    cambiarStatusPsicologo,    eliminarPsicologo
+        getAllPacientes,      cambiarStatusPsicologo,    eliminarPsicologo,
+        validarCedulaConAPI
 } from "../controllers/admin";
 import validarToken from "./validarToken";
 import validarAdmin from "./validarAdmin";
@@ -18,10 +19,11 @@ router.get("/api/admin/verificar", validarToken, verificarAdmin);
 
 // Gestión de psicólogos
 router.get("/api/admin/psicologos", validarAdmin, getAllPsicologos);
-router.put("/api/admin/psicologos/:id_psicologo/validar-cedula", validarAdmin, validarCedula);
+//router.put("/api/admin/psicologos/:id_psicologo/validar-cedula", validarAdmin, validarCedula);
 router.put("/api/admin/psicologos/:id_psicologo/status", validarAdmin, cambiarStatusPsicologo);
 router.delete("/api/admin/psicologos/:id_psicologo", validarAdmin, eliminarPsicologo);
 
+router.post("/api/admin/psicologos/:id_psicologo/validar-cedula-api", validarAdmin, validarCedulaConAPI);
 // Gestión de pacientes
 router.get("/api/admin/pacientes", validarAdmin, getAllPacientes);
 

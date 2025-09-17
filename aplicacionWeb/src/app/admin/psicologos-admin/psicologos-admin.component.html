@@ -374,6 +374,28 @@
           <button class="btn btn-secondary ms-auto" (click)="cerrarModal()">
             Cerrar
           </button>
+          <!-- Botón para abrir consulta oficial -->
+            <button 
+              (click)="abrirConsultaOficial()" 
+              class="btn btn-info mb-3">
+              🔍 Consultar Cédulas en Sitio Oficial SEP
+            </button>
+
+            <!-- Para cada psicólogo en la tabla/lista -->
+            <div class="psicologo-actions">
+              <button 
+                (click)="validarCedulaConAPI(psicologoSeleccionado)"
+                [disabled]="psicologoSeleccionado.cedula_validada"
+                class="btn btn-success btn-sm">
+                {{ psicologoSeleccionado.cedula_validada ? '✅ Validada' : '🔍 Validar Cédula' }}
+              </button>
+              
+              <button 
+                (click)="abrirConsultaOficial()"
+                class="btn btn-outline-primary btn-sm ml-2">
+                📋 Ver en SEP
+              </button>
+            </div>
           
         </div>
       </div>

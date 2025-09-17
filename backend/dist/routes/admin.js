@@ -17,9 +17,10 @@ router.post("/api/psicologo/registro-admin", admin_1.registroAdmin);
 router.get("/api/admin/verificar", validarToken_1.default, admin_1.verificarAdmin);
 // Gestión de psicólogos
 router.get("/api/admin/psicologos", validarAdmin_1.default, admin_1.getAllPsicologos);
-router.put("/api/admin/psicologos/:id_psicologo/validar-cedula", validarAdmin_1.default, admin_1.validarCedula);
+//router.put("/api/admin/psicologos/:id_psicologo/validar-cedula", validarAdmin, validarCedula);
 router.put("/api/admin/psicologos/:id_psicologo/status", validarAdmin_1.default, admin_1.cambiarStatusPsicologo);
 router.delete("/api/admin/psicologos/:id_psicologo", validarAdmin_1.default, admin_1.eliminarPsicologo);
+router.post("/api/admin/psicologos/:id_psicologo/validar-cedula-api", validarAdmin_1.default, admin_1.validarCedulaConAPI);
 // Gestión de pacientes
 router.get("/api/admin/pacientes", validarAdmin_1.default, admin_1.getAllPacientes);
 exports.default = router;
