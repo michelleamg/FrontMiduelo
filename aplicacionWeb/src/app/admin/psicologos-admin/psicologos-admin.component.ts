@@ -6,22 +6,6 @@ import { AdminService } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
 import { PsicologoAdmin } from '../../interfaces/psicologoAdmin';
 
-// interface PsicologoAdmin {
-//   id_psicologo: number;
-//   nombre: string;
-//   apellidoPaterno: string;
-//   apellidoMaterno: string;
-//   correo: string;
-//   telefono: string;
-//   cedula: string;
-//   especialidad: string;
-//   cedula_validada: boolean;
-//   status: 'activo' | 'inactivo';
-//   fecha_nacimiento: string;
-//   codigo_vinculacion: string;
-//   createdAt: string;
-// }
-
 @Component({
   selector: 'app-psicologos-admin',
   imports: [CommonModule, FormsModule],

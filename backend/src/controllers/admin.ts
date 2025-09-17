@@ -135,15 +135,14 @@ export const getAllPsicologos = async (req: AuthRequest, res: Response) => {
                 'rol_admin',
                 'status',
                 'fecha_nacimiento',
+                'codigo_vinculacion', // ← AGREGADO
                 'createdAt'
             ],
             order: [['createdAt', 'DESC']]
         });
 
-        res.json({
-            total: psicologos.length,
-            psicologos
-        });
+        // ✅ CAMBIO: Devolver array directo
+        res.json(psicologos);
 
     } catch (error) {
         console.error('Error obteniendo psicólogos:', error);
