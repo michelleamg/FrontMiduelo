@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
 import { PsicologoAdmin } from '../../interfaces/psicologoAdmin';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-psicologos-admin',
@@ -31,7 +33,8 @@ export class PsicologosAdminComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -142,26 +145,26 @@ validarCedulaConAPI(psicologo: any) {
 }
 
 // Método para validación manual (forzada)
-validarCedulaManual(psicologo: any) {
-  const url = `${this.apiUrl}/api/admin/psicologos/${psicologo.id_psicologo}/validar-cedula-api`;
-  
-  this.http.post(url, { forzarValidacion: true }).subscribe({
-    next: (response: any) => {
-      alert(`✅ ${response.msg}`);
-      this.cargarPsicologos();
-    },
-    error: (error) => {
-      console.error('Error:', error);
-      alert('Error: ' + error.error?.msg);
+  validarCedulaManual(psicologo: PsicologoAdmin) {
+      const url = `${this.apiUrl}api/admin/psicologos/${psicologo.id_psicologo}/validar-cedula-api`;
+      
+      this.http.post(url, { forzarValidacion: true }).subscribe({
+        next: (response: any) => {
+          this.toastr.success(`✅ ${response.msg}`);
+          this.cargarPsicologos();
+        },
+        error: (error: any) => { // ✅ TIPADO EXPLÍCITO
+          console.error('Error:', error);
+          this.toastr.error('Error: ' + error.error?.msg);
+        }
+      });
     }
-  });
-}
 
-// Método para abrir consulta oficial
-abrirConsultaOficial() {
-  const url = 'https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action';
-  window.open(url, '_blank');
-}
+  // Método para abrir consulta oficial
+  abrirConsultaOficial() {
+    const url = 'https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action';
+    window.open(url, '_blank');
+  }
 
 
 
