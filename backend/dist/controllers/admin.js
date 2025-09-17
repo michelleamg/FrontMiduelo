@@ -343,11 +343,11 @@ const validarCedulaConAPI = (req, res) => __awaiter(void 0, void 0, void 0, func
             }
         });
     }
-    catch (error) {
+    catch (error) { // ✅ CORREGIDO: Tipado explícito
         console.error('Error validando cédula:', error);
         res.status(500).json({
             msg: 'Error interno del servidor',
-            error: error.message
+            error: error.message || 'Error desconocido' // ✅ CORREGIDO: Manejo seguro del error
         });
     }
 });

@@ -327,78 +327,66 @@
       </div>
 
       <!-- Footer del modal con acciones -->
-      <div class="modal-footer">
-        <div class="d-flex flex-wrap gap-2 w-100">
-          
-          <!-- Validar cédula -->
-          <button 
-            class="btn btn-warning"
-            (click)="validarCedula(psicologoSeleccionado)"
-            [disabled]="validandoCedula || psicologoSeleccionado.cedula_validada"
-            title="Validar cédula profesional con SEP"
-          >
-            <span *ngIf="validandoCedula" class="spinner-border spinner-border-sm me-2"></span>
-            <i *ngIf="!validandoCedula" class="bi bi-patch-check me-2"></i>
-            {{ psicologoSeleccionado.cedula_validada ? 'Cédula Validada' : 'Validar Cédula' }}
-          </button>
+      <!-- Sección del modal - Footer corregido -->
+  <div class="modal-footer">
+    <div class="d-flex flex-wrap gap-2 w-100">
+      
+      <!-- ✅ BOTÓN CORREGIDO: Validar cédula con API -->
+      <button 
+        class="btn btn-warning"
+        (click)="validarCedulaConAPI(psicologoSeleccionado)"
+        [disabled]="validandoCedula || psicologoSeleccionado.cedula_validada"
+        title="Validar cédula profesional automáticamente"
+      >
+        <span *ngIf="validandoCedula" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!validandoCedula" class="bi bi-patch-check me-2"></i>
+        {{ psicologoSeleccionado.cedula_validada ? 'Cédula Validada' : 'Validar con API' }}
+      </button>
 
-          <!-- Cambiar estado de cuenta -->
-          <button 
-            *ngIf="psicologoSeleccionado.status === 'activo'"
-            class="btn btn-outline-danger"
-            (click)="cambiarEstadoCuenta(psicologoSeleccionado, 'inactivo')"
-            title="Inhabilitar cuenta"
-          >
-            <i class="bi bi-x-circle me-2"></i>Inhabilitar
-          </button>
+      <!-- Botón para abrir consulta oficial -->
+      <button 
+        class="btn btn-info"
+        (click)="abrirConsultaOficial()" 
+        title="Consultar cédulas en sitio oficial SEP"
+      >
+        <i class="bi bi-search me-2"></i>Ver en SEP
+      </button>
 
-          <button 
-            *ngIf="psicologoSeleccionado.status === 'inactivo'"
-            class="btn btn-outline-success"
-            (click)="cambiarEstadoCuenta(psicologoSeleccionado, 'activo')"
-            title="Habilitar cuenta"
-          >
-            <i class="bi bi-check-circle me-2"></i>Habilitar
-          </button>
+      <!-- Cambiar estado de cuenta -->
+      <button 
+        *ngIf="psicologoSeleccionado.status === 'activo'"
+        class="btn btn-outline-danger"
+        (click)="cambiarEstadoCuenta(psicologoSeleccionado, 'inactivo')"
+        title="Inhabilitar cuenta"
+      >
+        <i class="bi bi-x-circle me-2"></i>Inhabilitar
+      </button>
 
-          <!-- Eliminar cuenta -->
-          <button 
-            class="btn btn-outline-danger"
-            (click)="eliminarCuenta(psicologoSeleccionado)"
-            title="Eliminar cuenta permanentemente"
-          >
-            <i class="bi bi-trash me-2"></i>Eliminar
-          </button>
+      <button 
+        *ngIf="psicologoSeleccionado.status === 'inactivo'"
+        class="btn btn-outline-success"
+        (click)="cambiarEstadoCuenta(psicologoSeleccionado, 'activo')"
+        title="Habilitar cuenta"
+      >
+        <i class="bi bi-check-circle me-2"></i>Habilitar
+      </button>
 
-          <!-- Cerrar modal -->
-          <button class="btn btn-secondary ms-auto" (click)="cerrarModal()">
-            Cerrar
-          </button>
-          <!-- Botón para abrir consulta oficial -->
-            <button 
-              (click)="abrirConsultaOficial()" 
-              class="btn btn-info mb-3">
-              🔍 Consultar Cédulas en Sitio Oficial SEP
-            </button>
+      <!-- Eliminar cuenta -->
+      <button 
+        class="btn btn-outline-danger"
+        (click)="eliminarCuenta(psicologoSeleccionado)"
+        title="Eliminar cuenta permanentemente"
+      >
+        <i class="bi bi-trash me-2"></i>Eliminar
+      </button>
 
-            <!-- Para cada psicólogo en la tabla/lista -->
-            <div class="psicologo-actions">
-              <button 
-                (click)="validarCedulaConAPI(psicologoSeleccionado)"
-                [disabled]="psicologoSeleccionado.cedula_validada"
-                class="btn btn-success btn-sm">
-                {{ psicologoSeleccionado.cedula_validada ? '✅ Validada' : '🔍 Validar Cédula' }}
-              </button>
-              
-              <button 
-                (click)="abrirConsultaOficial()"
-                class="btn btn-outline-primary btn-sm ml-2">
-                📋 Ver en SEP
-              </button>
-            </div>
-          
-        </div>
-      </div>
+      <!-- Cerrar modal -->
+      <button class="btn btn-secondary ms-auto" (click)="cerrarModal()">
+        Cerrar
+      </button>
+      
+    </div>
+  </div>
 
     </div>
   </div>

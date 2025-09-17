@@ -62,16 +62,23 @@ export class AdminService {
 
 
 
+/**
+ *  MÉTODO CORREGIDO: Validar cédula profesional con API
+ */
+validarCedulaProfesional(idPsicologo: number, cedula: string): Observable<any> {
+  return this.http.post(`${this.AppUrl}${this.APIUrl}/psicologos/${idPsicologo}/validar-cedula-api`, {
+    cedula: cedula
+  });
+}
 
-   /**
-   * Validar cédula profesional con API de SEP
-   */
-  validarCedulaProfesional(idPsicologo: number, cedula: string): Observable<ValidacionCedulaResponse> {
-    return this.http.post<ValidacionCedulaResponse>(`${this.AppUrl}${this.APIUrl}/validar-cedula`, {
-      id_psicologo: idPsicologo,
-      cedula: cedula
-    });
-  }
+/**
+ *  MÉTODO NUEVO: Validar cédula manualmente
+ */
+validarCedulaManual(idPsicologo: number): Observable<any> {
+  return this.http.post(`${this.AppUrl}${this.APIUrl}/psicologos/${idPsicologo}/validar-cedula-api`, {
+    forzarValidacion: true
+  });
+}
 
   /**
    * Cambiar status de un psicólogo (activo/inactivo)

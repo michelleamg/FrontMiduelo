@@ -18,6 +18,8 @@ export class PsicologosAdminComponent implements OnInit {
   psicologos: PsicologoAdmin[] = [];
   psicologosFiltrados: PsicologoAdmin[] = [];
   psicologoSeleccionado: PsicologoAdmin | null = null;
+
+  private apiUrl: string = environment.apiUrl;
   
   // Filtros
   filtroNombre: string = '';
