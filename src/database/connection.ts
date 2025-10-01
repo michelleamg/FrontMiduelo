@@ -14,3 +14,6 @@ const sequelize = new Sequelize('miduelo', 'Michelle', 'hD*F9jBw@U6dS6Ym', {
         idle: 10000
     }
 });
+
+// ✅ AGREGA ESTA LÍNEA - EXPORTACIÓN CORRECTA
+export default sequelize;
