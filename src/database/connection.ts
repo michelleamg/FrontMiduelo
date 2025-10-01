@@ -1,16 +1,16 @@
-import { Sequelize, QueryTypes  } from "sequelize";
+import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize('miduelo','root', 'root',{
-
+const sequelize = new Sequelize('miduelo', 'Michelle', 'hD*F9jBw@U6dS6Ym', {
     host: '52.188.186.87',
-    dialect: "mysql"
-})
-export default sequelize;
-
-
-//const sequelize = new Sequelize('myduelo','dev_user', 'P4ssw0rd-S3gur0!',{
-    
-//    host: 'localhost',
-//    dialect: "mysql"
-//})
-//export default sequelize;
+    dialect: "mysql",
+    port: 3306, 
+    dialectOptions: {
+        connectTimeout: 60000 
+    },
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 60000,
+        idle: 10000
+    }
+});
