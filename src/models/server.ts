@@ -21,21 +21,25 @@ class Server {
     private port: string;
 
     constructor() {
-        this.app = express();
-        this.port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3016;
+    this.app = express();
+    this.port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3016;
 
-        // 1. Conectar a la base de datos
-        this.connetionBaseDatos();
+    // 1. Configurar middlewares
+    this.midlewares();
 
-        // 2. Configurar middlewares
-        this.midlewares();
+    // 2. Configurar las rutas
+    this.routes();
 
-        // 3. Configurar las rutas
-        this.routes();
-
-        // 4. Iniciar el servidor
-        this.listen();
-    }
+    // 3. Conectar DB y arrancar el servidor después
+    this.connetionBaseDatos()
+        .then(() => {
+            this.listen();
+        })
+        .catch((err) => {
+            console.error("Error al conectar la base de datos:", err);
+            process.exit(1); // Detener si no conecta
+        });
+}
 
     // Método para configurar middlewares
     private midlewares() {
