@@ -63,15 +63,15 @@ class Server {
     // Método para conectar a la base de datos
     private async connetionBaseDatos() {
         try {
-            await Psicologo.sync({ alter: true })
+            await Psicologo.sync({ alter: false })
                 .then(() => console.log("Tablas actualizadas"))
                 .catch(err => console.error("Error al sincronizar", err));
 
             await Paciente.sync({ force: false });
             
-            await Agenda.sync({ alter: true });
-            await Cita.sync({ alter: true });
-            await Recordatorio.sync({ alter: true });
+            await Agenda.sync({ alter: false });
+            await Cita.sync({ alter: false });
+            await Recordatorio.sync({ alter: false });
             console.log('Conexión a la base de datos exitosa.');
             console.log('Tablas sincronizadas correctamente.');
 

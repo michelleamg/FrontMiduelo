@@ -65,13 +65,13 @@ class Server {
     connetionBaseDatos() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield psicologo_2.Psicologo.sync({ alter: true })
+                yield psicologo_2.Psicologo.sync({ alter: false })
                     .then(() => console.log("Tablas actualizadas"))
                     .catch(err => console.error("Error al sincronizar", err));
                 yield paciente_2.Paciente.sync({ force: false });
-                yield agenda_2.Agenda.sync({ alter: true });
-                yield cita_1.Cita.sync({ alter: true });
-                yield recordatorio_1.Recordatorio.sync({ alter: true });
+                yield agenda_2.Agenda.sync({ alter: false });
+                yield cita_1.Cita.sync({ alter: false });
+                yield recordatorio_1.Recordatorio.sync({ alter: false });
                 console.log('Conexión a la base de datos exitosa.');
                 console.log('Tablas sincronizadas correctamente.');
                 // Programar cron: revisar citas para mañana a las 00:05
