@@ -2,7 +2,7 @@ import { Sequelize, QueryTypes  } from "sequelize";
 
 const sequelize = new Sequelize('miduelo','root', 'root',{
 
-    host: 'localhost',
+    host: '52.188.186.87',
     dialect: "mysql"
 })
 export default sequelize;
