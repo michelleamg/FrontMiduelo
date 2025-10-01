@@ -22,7 +22,7 @@ class Server {
 
     constructor() {
         this.app = express();
-        this.port = process.env.PORT || '3016';
+        this.port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3016;
 
         // 1. Conectar a la base de datos
         this.connetionBaseDatos();
